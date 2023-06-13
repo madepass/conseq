@@ -34,3 +34,5 @@ err_trial = data_behavior["err_trial"][0][0]
 rt = data_behavior["RT"][0][0]
 
 data_behavior["err_trial"][1][0].shape
+
+# this is a useless change
