@@ -1,6 +1,7 @@
 # %% Imports
 import os
 
+import pyedflib
 from mne.io import read_raw_edf
 from scipy.io import loadmat
 
@@ -12,10 +13,19 @@ cfg = import_config()
 # %% Import data
 
 # Import a single subject EDF
-subj_dir = cfg.dir.data + "/" + cfg.dir.subjects[-1]
+subj_dir = cfg.dir.data + "/" + cfg.dir.subjects[-2]
 fn = [f for f in os.listdir(subj_dir) if f.endswith(".EDF")][0]
-data = read_raw_edf(subj_dir + "/" + fn, preload=True, verbose=False)
-raw_data = data.get_data()
+f = pyedflib.EdfReader(subj_dir + "/" + fn)
+n = f.signals_in_file
+signal_labels = f.getSignalLabels()
+sigbufs = np.zeros((n, f.getNSamples()[0]))
+for i in np.arange(n):
+    sigbufs[i, :] = f.readSignal(i)
+f._close()
+del f
+
+
+data = read_raw_edf(subj_dir + "/" + fn, verbose=False)
 info = data.info
 sf = info["sfreq"]
 channels = data.ch_names
@@ -36,3 +46,6 @@ rt = data_behavior["RT"][0][0]
 data_behavior["err_trial"][1][0].shape
 
 # this is a useless change
+
+# %%
+#
