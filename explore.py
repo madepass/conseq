@@ -1,6 +1,7 @@
 # %% Imports
 import os
 
+import numpy as np
 import pyedflib
 from mne.io import read_raw_edf
 from scipy.io import loadmat
