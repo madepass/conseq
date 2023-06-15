@@ -1,0 +1,12 @@
+Trying out Org-mode as a Jupyter Notebook alternative.
+
+
+
+#+begin_src jupyter-python :session py
+a = "foo"
+b = "bar"
+print(a, b)
+#+end_src
+
+#+RESULTS:
+: foo bar
