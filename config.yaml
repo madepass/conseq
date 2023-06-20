@@ -1,3 +1,5 @@
+switches:
+  load_data: True
 dir:
   data: "/media/maikito/01D6CFB346EBEA501/work/consequential_data"
   subjects: ["1_051022_nil", "1_101022_nil", "2_261022_alexandre", "2_311022_alexandre", "3_211122_subject3"]

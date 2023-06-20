@@ -1,3 +1,7 @@
+from dataclasses import dataclass
+from typing import List
+
+import numpy as np
 import yaml
 from ypstruct import struct
 
@@ -12,3 +16,32 @@ def import_config():
             cfg[k] = struct(cfg[k])
     print("Imported config.yaml")
     return cfg
+
+# neural data dataclass
+@dataclass
+class NeuralData():
+    """Class for neural data"""
+    data: np.ndarray
+    sf: int
+    channels: list
+    subj_dir: str
+    fn: str
+
+    def __post_init__(self):
+        self.n_channels = len(self.channels)
+        self.n_samples = self.data.shape[1]
+        self.n_seconds = self.n_samples / self.sf
+        self.n_minutes = self.n_seconds / 60
+        self.n_hours = self.n_minutes / 60
+        self.n_days = self.n_hours / 24
+
+# behavior data dataclass
+@dataclass
+class BehaviorData():
+    decisions: np.ndarray
+    rt: np.ndarray
+    correct: np.ndarray
+
+@dataclass
+class Dataset():
+    data = List[NeuralData]

@@ -1,12 +1,73 @@
 Trying out Org-mode as a Jupyter Notebook alternative.
 
 
-
+Import some packages
 #+begin_src jupyter-python :session py
-a = "foo"
-b = "bar"
-print(a, b)
+import os
+import pyedflib
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from utils.utils import import_config
+print("Imported packages...")
+#+end_src
+#+results:
+: Imported packages...
+
+Load config
+#+begin_src jupyter-python
+cfg = import_config()
 #+end_src
 
 #+RESULTS:
-: foo bar
+: Imported config.yaml
+
+Import data
+#+begin_src jupyter-python
+fn = cfg.dir.data + cfg.dir.subjects[-2]
+f = pyedflib.EdfReader(fn)
+n = f.signals_in_file
+signal_labels = f.getSignalLabels()
+sigbufs = np.zeros((n, f.getNSamples()[0]))
+for i in np.arange(n):
+    sigbufs[i, :] = f.readSignal(i)
+sigbufs = sigbufs.astype(np.float32)
+
+
+#+end_src
+
+#+RESULTS:
+:RESULTS:
+# [goto error]
+#+begin_example
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mFileNotFoundError[0m                         Traceback (most recent call last)
+Cell [0;32mIn [12], line 2[0m
+[1;32m      1[0m fn [38;5;241m=[39m cfg[38;5;241m.[39mdir[38;5;241m.[39mdata [38;5;241m+[39m cfg[38;5;241m.[39mdir[38;5;241m.[39msubjects[[38;5;241m-[39m[38;5;241m2[39m]
+[0;32m----> 2[0m f [38;5;241m=[39m [43mpyedflib[49m[38;5;241;43m.[39;49m[43mEdfReader[49m[43m([49m[43mfn[49m[43m)[49m
+[1;32m      3[0m n [38;5;241m=[39m f[38;5;241m.[39msignals_in_file
+[1;32m      4[0m signal_labels [38;5;241m=[39m f[38;5;241m.[39mgetSignalLabels()
+
+File [0;32mpyedflib/_extensions/_pyedflib.pyx:166[0m, in [0;36mpyedflib._extensions._pyedflib.CyEdfReader.__init__[0;34m()[0m
+
+File [0;32mpyedflib/_extensions/_pyedflib.pyx:146[0m, in [0;36mpyedflib._extensions._pyedflib.CyEdfReader.__init__[0;34m()[0m
+
+File [0;32mpyedflib/_extensions/_pyedflib.pyx:209[0m, in [0;36mpyedflib._extensions._pyedflib.CyEdfReader.open[0;34m()[0m
+
+File [0;32mpyedflib/_extensions/_pyedflib.pyx:180[0m, in [0;36mpyedflib._extensions._pyedflib.CyEdfReader.check_open_ok[0;34m()[0m
+
+[0;31mFileNotFoundError[0m: /media/maikito/01D6CFB346EBEA501/work/consequential_data2_311022_alexandre: can not open file, no such file or directory
+#+end_example
+:END:
+
+#+begin_src jupyter-python
+
+#+end_src
+
+#+begin_src jupyter-python
+
+#+end_src
+
+#+begin_src jupyter-python
+
+#+end_src
