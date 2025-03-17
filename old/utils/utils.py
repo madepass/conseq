@@ -3,7 +3,35 @@ from typing import List
 
 import numpy as np
 import yaml
+from scipy.signal import butter, filtfilt
 from ypstruct import struct
+
+
+def butter_bandpass(lowcut, highcut, fs, order=2):
+    """
+    Compute the filter coefficients for a Butterworth bandpass filter.
+    """
+    # Compute the Nyquist frequency
+    nyq = 0.5 * fs
+    # Compute the low and high frequencies
+    low = lowcut / nyq
+    high = highcut / nyq
+    # Compute the filter coefficients
+    b, a = butter(order, [low, high], btype="band")
+    # Return the filter coefficients
+    return b, a
+
+
+def bandpass_filter(lfp, fs, lowcut, highcut):
+    """
+    Apply a bandpass filter to the LFP signal.
+    """
+    # Compute the filter coefficients
+    b, a = butter_bandpass(lowcut, highcut, fs)
+    # Apply the filter
+    lfp_filtered = filtfilt(b, a, lfp, axis=1)
+    # Return the filtered LFP signal
+    return lfp_filtered
 
 
 def import_config():

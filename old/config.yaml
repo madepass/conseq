@@ -1,0 +1,39 @@
+dirs:
+  save: '/home/maikito/Documents/rl_consequential/project_output'
+  stimuli: '/home/maikito/Documents/rl_consequential/project_output/stimuli.txt'  # generated/simulated stimuli for testing RL agents
+  real_stimuli: '/home/maikito/Documents/rl_consequential/project_output/real_stimuli.txt'  # real stimuli used by participants
+
+gen_trials:
+  n_episodes: 1000
+
+q:  # q big/small
+  reward_type: 'stimuli'
+  optimistic: (True, 'biased', 5)
+  constant_epsilon: False
+  epsilon: 0.276
+  gamma: 0
+  constant_alpha: True
+  alpha: 0.2
+
+qp:  #  q_parallel
+  reward_type: 'stimuli'
+  optimistic: (False, 'biased', 5)
+  constant_epsilon: True
+  epsilon: 0.2
+  gamma: 1
+  constant_alpha: True
+  alpha: 0.1
+
+qs:  #  q_sequential
+  hypotheses: ['lr', 'sb', 'fs']
+  n: 200  # number of trials to test each hypothesis
+  reward_type: 'stimuli'
+  optimistic: (False, 'biased', 5)
+  constant_epsilon: True
+  epsilon: 0.2
+  gamma: 1
+  constant_alpha: True
+  alpha: 0.1
+
+qm:  #q_model
+  n_to_update: 10

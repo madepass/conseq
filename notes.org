@@ -1,0 +1,5 @@
+* currently working on
+- multi_g function
+- need to decide on values of g
+* todo
+- make probabilistic variant
