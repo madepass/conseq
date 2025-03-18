@@ -1,5 +1,7 @@
 * currently working on
 - multi_g function
+  - all_stims wrong shape, probably because of line 21
 - need to decide on values of g
 * todo
 - make probabilistic variant
+  - generator variant

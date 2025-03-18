@@ -1,6 +1,7 @@
 # %% Imports
 import math
 import numpy as np
+import pandas as pd
 
 # %% Debugging tools
 from pdb import set_trace as st
@@ -79,17 +80,34 @@ def horizon_1_og(g=0.3, n_episodes=100, difficulty=[0.01, 0.05, 0.1, 0.15, 0.2])
 
 
 def multi_g(
-    g=[0.1, 0.3],
-    n_episodes=100,
+    gs=[0.1, 0.3],
+    episodes_per_block=100,
     episodes_per_g=20,
     difficulty=[0.01, 0.05, 0.1, 0.15, 0.2],
 ):
-    epg = episodes_per_g + np.random.randint(-2, high=3)
+    """
+    Notes
+    =====
+    something
+    """
     all_stims = []
-    for gain in g:
-        stims = horizon_1_og(g=gain, n_episodes=epg)
+    episode_numbers, epgs = [], []
+    for g in gs:
+        epg = episodes_per_g + np.random.randint(-2, high=3)
+        stims = horizon_1_og(g=g, n_episodes=epg, difficulty=difficulty)
+        # append
         all_stims.append(stims)
-    return all_stims
+        episode_numbers.append(np.arange(epg))
+        epgs.append(epg)
+    all_stims = np.concatenate(all_stims)
+    episode_numbers = np.concatenate(episode_numbers)
+    trial_numbers = [0, 1] * (len(all_stims) // 2)
+    gains = [g_ for (g_, epg) in zip(g, epgs) for _ in range(epg)]
+    gains_col = [gain for gain in gains for _ in range(2)]
+    st()
+    data = np.concatenate((episode_numbers, trial_numbers, all_stims, gains_col))
+    stim_df = pd.DataFrame(data=data)
+    return stim_df
 
 
 # %% Main
@@ -103,3 +121,5 @@ if __name__ == "__main__":
 # %% Scratch paper
 # Section to keep most current work before refactoring
 env = horizon_1_og()
+
+env = multi_g()
