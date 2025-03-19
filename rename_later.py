@@ -8,6 +8,7 @@ from pdb import set_trace as st
 from pdb import pm
 import wat
 import snoop
+from IPython import embed as ipe
 
 # %% Functions
 def horizon_1_og(g=0.3, n_episodes=100, difficulty=[0.01, 0.05, 0.1, 0.15, 0.2]):
@@ -79,6 +80,57 @@ def horizon_1_og(g=0.3, n_episodes=100, difficulty=[0.01, 0.05, 0.1, 0.15, 0.2])
     return np.round(trialListValues, decimals=3)
 
 
+class Horizon1:
+    """
+    Generate Horizon 1 environment.
+
+    stochastic: either False, or float describing the probability of the "expected" outcome
+    Should be between [0.5, 1]
+
+    states
+    ======
+    0: first trial of an episode
+    1: second trial, low reward
+    2: second trial, high reward
+
+    actions
+    =======
+    0: choose small
+    1: choose big
+    """
+
+    def __init__(
+        self,
+        gs=[0.1, 0.3],
+        episodes_per_g=20,
+        difficulty=[0.01, 0.05, 0.1, 0.15, 0.2],
+        stochastic=False,
+    ):
+        self.g = gs[0]
+        self.epg = episodes_per_g
+        self.difficulty = difficulty
+        self.all_stims = []
+        self.accumulated_reward = 0
+        self.state = 0
+        self.actions = [0, 1]  # small, big
+
+    def generate_stimuli(self):
+        max_diff = max(self.difficulty)
+        ms = np.linspace(self.g + max_diff / 2, 1 - self.g - max_diff / 2, 10)
+        m = np.random.choice(ms)
+        d = np.random.choice(self.difficulty)
+        if self.state == 0:
+            stimuli = [m - d / 2, m + d / 2]
+        elif self.state == 1:
+            stimuli = [m - self.g - d / 2, m - self.g + d / 2]
+        else:  # state == 2
+            stimuli = [m + self.g - d / 2, m + self.g + d / 2]
+        return stimuli
+
+    def step(self, action):
+        pass
+
+
 def multi_g(
     gs=[0.1, 0.3],
     episodes_per_block=100,
@@ -102,7 +154,7 @@ def multi_g(
     all_stims = np.concatenate(all_stims)
     episode_numbers = np.concatenate(episode_numbers)
     trial_numbers = [0, 1] * (len(all_stims) // 2)
-    gains = [g_ for (g_, epg) in zip(g, epgs) for _ in range(epg)]
+    gains = [g for (g, epg) in zip(gs, epgs) for _ in range(epg)]
     gains_col = [gain for gain in gains for _ in range(2)]
     st()
     data = np.concatenate((episode_numbers, trial_numbers, all_stims, gains_col))

@@ -1,4 +1,6 @@
 * currently working on
+- Horizon1 environment class (FUN)
+  - based off of GridWorld (chatgpt)
 - multi_g function
   - all_stims wrong shape, probably because of line 21
 - need to decide on values of g
