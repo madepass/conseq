@@ -2,6 +2,7 @@
 import math
 import numpy as np
 import pandas as pd
+import random
 
 # %% Debugging tools
 from pdb import set_trace as st
@@ -80,57 +81,6 @@ def horizon_1_og(g=0.3, n_episodes=100, difficulty=[0.01, 0.05, 0.1, 0.15, 0.2])
     return np.round(trialListValues, decimals=3)
 
 
-class Horizon1:
-    """
-    Generate Horizon 1 environment.
-
-    stochastic: either False, or float describing the probability of the "expected" outcome
-    Should be between [0.5, 1]
-
-    states
-    ======
-    0: first trial of an episode
-    1: second trial, low reward
-    2: second trial, high reward
-
-    actions
-    =======
-    0: choose small
-    1: choose big
-    """
-
-    def __init__(
-        self,
-        gs=[0.1, 0.3],
-        episodes_per_g=20,
-        difficulty=[0.01, 0.05, 0.1, 0.15, 0.2],
-        stochastic=False,
-    ):
-        self.g = gs[0]
-        self.epg = episodes_per_g
-        self.difficulty = difficulty
-        self.all_stims = []
-        self.accumulated_reward = 0
-        self.state = 0
-        self.actions = [0, 1]  # small, big
-
-    def generate_stimuli(self):
-        max_diff = max(self.difficulty)
-        ms = np.linspace(self.g + max_diff / 2, 1 - self.g - max_diff / 2, 10)
-        m = np.random.choice(ms)
-        d = np.random.choice(self.difficulty)
-        if self.state == 0:
-            stimuli = [m - d / 2, m + d / 2]
-        elif self.state == 1:
-            stimuli = [m - self.g - d / 2, m - self.g + d / 2]
-        else:  # state == 2
-            stimuli = [m + self.g - d / 2, m + self.g + d / 2]
-        return stimuli
-
-    def step(self, action):
-        pass
-
-
 def multi_g(
     gs=[0.1, 0.3],
     episodes_per_block=100,
@@ -162,6 +112,104 @@ def multi_g(
     return stim_df
 
 
+class Horizon1:
+    """
+    Generate Horizon 1 environment.
+
+    stochastic: either False, or float describing the probability of the "expected" outcome
+    Should be between [0.5, 1]
+
+    states
+    ======
+    0: first trial of an episode
+    1: second trial, low reward
+    2: second trial, high reward
+
+    actions
+    =======
+    0: choose small
+    1: choose big
+    """
+
+    def __init__(
+        self,
+        gs=[0.1, 0.3],
+        episodes_per_g=20,
+        difficulty=[0.01, 0.05, 0.1, 0.15, 0.2],
+        stochastic=False,
+        randomize_last_episode=False,
+    ):
+        self.gs = gs
+        self.current_g_index = 0
+        self.g = gs[0]
+        self.epg = episodes_per_g
+        self.episode_number = 0
+        self.trial_number = 0
+        self.difficulty = difficulty
+        self.all_stims = []
+        self.accumulated_reward = 0
+        self.stochastic = stochastic
+        self.rle = randomize_last_episode
+        self.actions = [0, 1]
+        self.state = [0, self.generate_stimuli(0)]  # ["state", [stimuli]]
+        self.neg = self.number_of_episodes_to_generate()
+
+    def reset(self):
+        self.state = [0, [0, 0]]
+        return self.state
+
+    def number_of_episodes_to_generate(self):
+        if self.rle:  # randomize last episode
+            neg = [self.epg + np.random.randint(-2, high=3) for g in self.gs]
+        else:
+            neg = [self.epg] * len(self.gs)
+        return neg  # list containing number of episodes to generate per g
+
+    def generate_stimuli(self, state):
+        max_diff = max(self.difficulty)
+        ms = np.linspace(self.g + max_diff / 2, 1 - self.g - max_diff / 2, 10)
+        m = np.random.choice(ms)
+        d = np.random.choice(self.difficulty)
+        if state == 0:
+            stimuli = [m - d / 2, m + d / 2]
+        elif state == 1:
+            stimuli = [m - self.g - d / 2, m - self.g + d / 2]
+        else:  # state == 2
+            stimuli = [m + self.g - d / 2, m + self.g + d / 2]
+        random.shuffle(stimuli)
+        return stimuli
+
+    def state_transition(self, action):
+        unexpected_transition = 0
+        if self.stochastic:
+            unexpected_transition = 1 if random.uniform(0, 1) > self.stochastic else 0
+        if (self.state[0] == 0) and (action == 0):
+            new_state = 1 if unexpected_transition else 2  # high mean reward state
+        elif (self.state[0] == 0) and (action == 1):
+            new_state = 2 if unexpected_transition else 1  # low mean reward state
+        else:  # state = 1
+            new_state = 0
+        new_state = [new_state, None]
+        new_state[1] = self.generate_stimuli(new_state)
+        self.state = new_state
+        return new_state
+
+    def step(self, action):
+        done = False
+        # stimuli = self.generate_stimuli()
+        new_state = self.state_transition(action)
+        reward = max(new_state[1]) if action else min(new_state[1])
+        if self.state in [1, 2]:
+            self.episode_number += 1
+        if self.episode_number == self.neg[self.current_g_index - 1]:
+            self.current_g_index += 1
+            if self.current_g_index == len(self.gs):
+                done = True
+        self.g = self.gs[self.current_g_index]
+        self.trial_number += 1
+        return new_state, reward, done
+
+
 # %% Main
 def main():
     pass
@@ -172,6 +220,12 @@ if __name__ == "__main__":
 
 # %% Scratch paper
 # Section to keep most current work before refactoring
-env = horizon_1_og()
-
-env = multi_g()
+# env = horizon_1_og()
+# env = multi_g()
+env = Horizon1(gs=[0.1, 0.3], episodes_per_g=20)
+states, rewards = [], []
+done = False
+while not done:
+    state, reward, done = env.step(0)
+    states.append(state)
+    rewards.append(reward)
