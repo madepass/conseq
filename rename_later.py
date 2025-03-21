@@ -143,8 +143,8 @@ class Horizon1:
         self.current_g_index = 0
         self.g = gs[0]
         self.epg = episodes_per_g
-        self.episode_number = 0
-        self.trial_number = 0
+        self.episode_number = 1
+        self.trial_number = 1
         self.difficulty = difficulty
         self.all_stims = []
         self.accumulated_reward = 0
@@ -153,9 +153,13 @@ class Horizon1:
         self.actions = [0, 1]
         self.state = [0, self.generate_stimuli(0)]  # ["state", [stimuli]]
         self.neg = self.number_of_episodes_to_generate()
+        self.done = False
 
     def reset(self):
-        self.state = [0, [0, 0]]
+        self.state = [0, self.generate_stimuli(0)]
+        self.episode_number = 1
+        self.trial_number = 1
+        self.current_g_index = 0
         return self.state
 
     def number_of_episodes_to_generate(self):
@@ -194,19 +198,31 @@ class Horizon1:
         self.state = new_state
         return new_state
 
-    def step(self, action):
-        done = False
-        # stimuli = self.generate_stimuli()
-        new_state = self.state_transition(action)
-        reward = max(new_state[1]) if action else min(new_state[1])
-        if self.state in [1, 2]:
-            self.episode_number += 1
+    def _update(self):
         if self.episode_number == self.neg[self.current_g_index - 1]:
             self.current_g_index += 1
             if self.current_g_index == len(self.gs):
-                done = True
+                self.done = True
+        if self.episode_number == self.neg[self.current_g_index] + 1:
+            if self.state[0] != 0:
+                self.current_g_index += 1
+                self.episode_number = 1
         self.g = self.gs[self.current_g_index]
         self.trial_number += 1
+        if self.state[0] != 0:
+            self.episode_number += 1
+
+    def step(self, action):
+        if self.trial_number == 1:
+            reward = max(self.state[1]) if action else min(self.state[1])
+            print(self.g, self.episode_number, self.trial_number)
+            self._update()
+            return self.state, reward, done
+        # stimuli = self.generate_stimuli()
+        new_state = self.state_transition(action)
+        reward = max(new_state[1]) if action else min(new_state[1])
+        print(self.g, self.episode_number, self.trial_number)
+        self._update()
         return new_state, reward, done
 
 
