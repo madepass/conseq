@@ -1,4 +1,5 @@
 * currently working on
+- m & d should be constant within episode
 - Horizon1 environment class (FUN)
   - run bottom cell, g updates one trial too early. troubleshoot.
   - based off of GridWorld (chatgpt)
@@ -8,3 +9,5 @@
 * todo
 - make probabilistic variant
   - generator variant
+* differences compared to previous version of the task
+- difficulty is random at every trial (can change within episode)

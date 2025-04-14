@@ -138,6 +138,7 @@ class Horizon1:
         difficulty=[0.01, 0.05, 0.1, 0.15, 0.2],
         stochastic=False,
         randomize_last_episode=False,
+        verbose=True,
     ):
         self.gs = gs
         self.current_g_index = 0
@@ -146,16 +147,31 @@ class Horizon1:
         self.episode_number = 1
         self.trial_number = 1
         self.difficulty = difficulty
+        self.d = random.choice(self.difficulty)
+        self.ms = np.linspace(
+            self.g + max(self.difficulty) / 2, 1 - self.g - max(self.difficulty) / 2, 10
+        )
+        self.m = np.round(np.random.choice(self.ms), decimals=2)
         self.all_stims = []
         self.accumulated_reward = 0
         self.stochastic = stochastic
         self.rle = randomize_last_episode
         self.actions = [0, 1]
-        self.state = [0, self.generate_stimuli(0)]  # ["state", [stimuli]]
+        self.state = [
+            0,
+            self.generate_stimuli(0, self.m, self.d),
+        ]  # ["state", [stimuli]]
         self.neg = self.number_of_episodes_to_generate()
         self.done = False
+        self.verbose = verbose
+        assert (self.stochastic is False) or (
+            0.5 <= self.stochastic < 1.0
+        ), "stochastic should be False (deterministic state transitions), or a float between 0.5 and 1 indicating the probability of the expected transition."
 
     def reset(self):
+        """
+        unfinished
+        """
         self.state = [0, self.generate_stimuli(0)]
         self.episode_number = 1
         self.trial_number = 1
@@ -169,18 +185,14 @@ class Horizon1:
             neg = [self.epg] * len(self.gs)
         return neg  # list containing number of episodes to generate per g
 
-    def generate_stimuli(self, state):
-        max_diff = max(self.difficulty)
-        ms = np.linspace(self.g + max_diff / 2, 1 - self.g - max_diff / 2, 10)
-        m = np.random.choice(ms)
-        d = np.random.choice(self.difficulty)
+    def generate_stimuli(self, state, m, d):
         if state == 0:
             stimuli = [m - d / 2, m + d / 2]
         elif state == 1:
             stimuli = [m - self.g - d / 2, m - self.g + d / 2]
         else:  # state == 2
             stimuli = [m + self.g - d / 2, m + self.g + d / 2]
-        random.shuffle(stimuli)
+        random.shuffle(stimuli)  # randomize left or right position on screen
         return stimuli
 
     def state_transition(self, action):
@@ -191,39 +203,71 @@ class Horizon1:
             new_state = 1 if unexpected_transition else 2  # high mean reward state
         elif (self.state[0] == 0) and (action == 1):
             new_state = 2 if unexpected_transition else 1  # low mean reward state
-        else:  # state = 1
+        else:  # state != 1 (terminal state, go back to state 0)
             new_state = 0
-        new_state = [new_state, None]
-        new_state[1] = self.generate_stimuli(new_state)
+        new_state = [new_state, self.generate_stimuli(new_state, self.m, self.d)]
         self.state = new_state
         return new_state
 
     def _update(self):
-        if self.episode_number == self.neg[self.current_g_index - 1]:
-            self.current_g_index += 1
-            if self.current_g_index == len(self.gs):
-                self.done = True
-        if self.episode_number == self.neg[self.current_g_index] + 1:
+        if self.episode_number == self.neg[self.current_g_index]:
+            if self.current_g_index == len(self.gs) - 1:
+                if self.state[0] != 0:
+                    self.done = True
+        if self.episode_number == self.neg[self.current_g_index]:
             if self.state[0] != 0:
                 self.current_g_index += 1
+                if self.current_g_index < len(self.gs):
+                    self.g = self.gs[self.current_g_index]
                 self.episode_number = 1
+                self.trial_number += 1
+                return 1
         self.g = self.gs[self.current_g_index]
         self.trial_number += 1
         if self.state[0] != 0:
             self.episode_number += 1
 
     def step(self, action):
+        assert (
+            self.done == False
+        ), "Environment is done. Call reset() method to use same instance again."
         if self.trial_number == 1:
+            # new_state = self.state_transition(action)
             reward = max(self.state[1]) if action else min(self.state[1])
-            print(self.g, self.episode_number, self.trial_number)
+            if self.verbose:
+                print(self.g, self.episode_number, self.trial_number)
+            env_params = [
+                self.g,
+                self.episode_number,
+                self.trial_number,
+                self.m,
+                self.d,
+                self.state[0],
+                self.state[1],
+                action,
+            ]
             self._update()
-            return self.state, reward, done
-        # stimuli = self.generate_stimuli()
+            new_state = self.state_transition(action)
+            return new_state, reward, self.done, env_params
+        if self.state[0] == 0:  # set m and d for the episode
+            self.m = np.round(np.random.choice(self.ms), decimals=2)
+            self.d = random.choice(self.difficulty)
+        env_params = [
+            self.g,
+            self.episode_number,
+            self.trial_number,
+            self.m,
+            self.d,
+            self.state[0],
+            self.state[1],
+            action,
+        ]
         new_state = self.state_transition(action)
         reward = max(new_state[1]) if action else min(new_state[1])
-        print(self.g, self.episode_number, self.trial_number)
+        if self.verbose:
+            print(self.g, self.episode_number, self.trial_number)
         self._update()
-        return new_state, reward, done
+        return new_state, reward, self.done, env_params
 
 
 # %% Main
@@ -236,12 +280,24 @@ if __name__ == "__main__":
 
 # %% Scratch paper
 # Section to keep most current work before refactoring
-# env = horizon_1_og()
-# env = multi_g()
-env = Horizon1(gs=[0.1, 0.3], episodes_per_g=20)
-states, rewards = [], []
+# env = Horizon1(gs=[0.1, 0.3], episodes_per_g=20)
+env = Horizon1(
+    gs=[0.3, 0.15],
+    episodes_per_g=20,
+    stochastic=False,
+    randomize_last_episode=False,
+    verbose=True,
+)
+states, rewards, dones, params = [], [], [], []
 done = False
 while not done:
-    state, reward, done = env.step(0)
+    state, reward, done, env_params = env.step(0)
     states.append(state)
     rewards.append(reward)
+    dones.append(done)
+    params.append(env_params)
+results_df = pd.DataFrame(
+    data=params,
+    columns=["g", "episode", "trial", "m", "d", "state", "stimuli", "action"],
+)
+results_df.to_csv("/home/maikito/mad/conseq/output/results_df.csv")
