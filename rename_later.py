@@ -149,7 +149,9 @@ class Horizon1:
         self.difficulty = difficulty
         self.d = random.choice(self.difficulty)
         self.ms = np.linspace(
-            self.g + max(self.difficulty) / 2, 1 - self.g - max(self.difficulty) / 2, 10
+            abs(self.g) + max(self.difficulty) / 2,
+            1 - abs(self.g) - max(self.difficulty) / 2,
+            5,
         )
         self.m = np.round(np.random.choice(self.ms), decimals=2)
         self.all_stims = []
