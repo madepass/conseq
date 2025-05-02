@@ -11,3 +11,18 @@
   - generator variant
 * differences compared to previous version of the task
 - difficulty is random at every trial (can change within episode)
+* riccardo feedback
+- "may have changed" \to "changed"
+- maybe make top schematic clearer, indicate repitions more clearly
+  - "episode 1", \to "episode 2"
+  - think about including in text: "Each episode consists of two trials"
+  - "environment 2/4", etc.
+- increase episodes from 20 to at least 30
+- should mention that only thing that matters is the quantities?
+  - riccardo says probably not necessary
+** thoughts after riccardo pilot
+- risk aversion increases w/ uncertainty
+  - make a pure exploration period?
+    - period where participants don't lose any € for sub-optimal performance
+  - should say how many episodes per environment?
+    - maybe would influence how explorative they are
