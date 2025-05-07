@@ -3,16 +3,37 @@
 #+PROPERTY: header-args:jupyter-python+ :async yes
 #+PROPERTY: header-args:jupyter-python+ :exports results
 #+OPTIONS: author:nil
+#+OPTIONS: tex:t
 
 * Research question and hypotheses
-* Determining Gain (g) and Difficulty (d)
-Gain and difficulty are two of the most important parameters in the task. They determine the magnitude (and sign) of consequence as well as the magnitude of the difference between stimuli presented in a given trial. These parameters ultimately determine the optimal strategy.
+Does the brain keep track of the values associated with all possible policies, or only the currently exploited one? What drives our decision-making process as value computation becomes less tractable/more uncertain? We hypothesize that, as task complexity and uncertainty increase, the decision-making process goes from: value-comparison driven, to value-comparison-to-threshold driven, to "consequence" driven. By consequence, we mean the change in mean reward between trials (\(\Delta \bar{R}\)). A "consequence" driven agent seeks high reward states, but does not compute value.
+To test the above hypotheses, we developed a novel perceptual decision-making task.
 
-The selection of g and d should allow us to determine whether participants' decisions are primarily determined by 1) value comparison or by 2) consequence. Moreover, in the case of value comparison, these parameters should enable us to distinguish classical Q-learning from Q-foraging.
+* Task
+** Stimuli generation
+The mean of the stimuli in Trial 1, $m$, has bounds: \( \\ ( |g| + \frac{\max d}{2} , 1 - |g| - \frac{\max d}{2} ) \) \\
+There are 10 possible values of m for each g. These values are linearly spaced between the lower and upper bounds and are sampled at random before each episode. These bounds ensure the minimum and maximum stimuli values are 0 and 1, respectively. \\
+
+The stimuli heights are then computed as follows: \\
+Trial 1 stimuli heights: \(  m \pm \frac{d}{2} \\ \)
+Trial 2 stimuli heights: \( \begin{cases}
+                                                m \pm \frac{d}{2} + g \text{ if chose small}  \\
+                                                m \pm \frac{d}{2} - g \text{ if chose big}
+                                                \end{cases}
+                                                \\
+                                                \)
+
+
+Difficulty, d, determines the magnitude of the difference in stimuli heights in an episode. A single value of d \in {0.05, 0.2, 0.35} is randomly chosen before each episode. d is constant within an episode.  \\
+Gain, g, determines the magnitude and sign of the consequence of the Trial 1 choice. Each block consists of 30 episodes and has a single value of g. In total there are 4 blocks, one for each value of g \in {-0.3, 0, 0.1, 0.3}. The order of these blocks is random. \\
+
+** Determining Gain (g) and Difficulty (d)
+Gain and difficulty are two of the most important task parameters. They determine the magnitude (and sign) of consequence as well as the magnitude of the difference between stimuli presented in a given trial. These parameters determine the optimal strategy.
+Proper selection of g and d should allow us to determine whether participants' decisions are primarily determined by 1) value comparison, 2) comparison to threshold, or 3) "consequence".
 *** Original values
 The previous g was 0.3 for Horizon 1. The previous d values were: [0.01, 0.05, 0.1, 0.15, 0.2].
 
-These values of g and d meant that Small-Big was always the optimal action sequence/policy in Horizon 1.
+These values of g and d meant that Small-Big was always the optimal action sequence/policy in Horizon 1. In other words, giving up 0.2 units of reward in trial 1 was always worth it since the mean reward of the stimuli would increase by 0.3.
 
 *** Updated values
 More values of g, along with appropriate values of d, are required in order to determine how humans decide in the consequential task. I propose four values of g:
@@ -28,6 +49,8 @@ More values of g, along with appropriate values of d, are required in order to d
 | D         | G > c |  0.3 | Small-big           |
 
 I propose the following d values: [0.05, 0.2, 0.35]
+
+The data below is the output from a Python script in which I computed the cumulative reward for the two possible action sequences (small-big & big-big) and for all combinations of g and d:
 
 #+begin_src  jupyter-python
 import random
@@ -116,43 +139,98 @@ difficulty:  [0.05, 0.2, 0.35]
 #+end_example
 
 The second "table" above shows shows the difference in cumulative reward, for all g and d, between the Small-Big and Big-Big action sequences. These values of g and d yield the optimal strategies outlined in Table 1. For these proposed values, the optimal policy is Big-Big for g=-0.3 and g=0. For g=0.1, Small-Big and Big-big yield identical cumulative reward.  The optimal strategy, in this case, is Small-Big when d is large and Big-Big when d is small. Small-Big and Big-Big yield identical cumulative reward when d is 0.2 (the intermediate value). Finally, the optimal strategy is Small-Big when g=0.3.
-* Differences between Horizon 1 v1 & Horizon 1 v2
+
+** Instructions for participants
+#+ATTR_ORG: :align center
+[[./img/instructions.png]]
+** Differences between Horizon 1 v1 & Horizon 1 v2
 Table 2 shows most of the important differences between version 1 and version 2 of the task.
 #+NAME: Table 2
 #+ATTR_ODT: :rel-width 50
-| attribute         | v1                           | v2                  | comments |
-|-------------------+------------------------------+---------------------+----------|
-| g                 | 0.3                          | {-0.3, 0, 0.1, 0.3} | v2       |
-| d                 | {0.01, 0.05, 0.1, 0.15, 0.2} | {0.05, 0.2, 0.35}   |          |
-| \pi*                | Small-Big                    | g & d dependent     |          |
-| fixation timeout  | skip trial                   | progresses trial    |          |
-| stimuli selection | mouse hover                  | mouse click         |          |
-** Proposed additions
-Uncertainty takes many forms. Visual uncertainty, or the uncertainty that arises when the participants have to approximate the sum of two visually assessed quantities.
-* Uncertainty in the Consequential task
-Uncertainty
-** Visual discrimination/perceptual uncertainty
+| attribute         | v1                           | v2                  |
+|-------------------+------------------------------+---------------------|
+| g                 | 0.3                          | {-0.3, 0, 0.1, 0.3} |
+| d                 | {0.01, 0.05, 0.1, 0.15, 0.2} | {0.05, 0.2, 0.35}   |
+| \pi*                | Small-Big                    | g & d dependent     |
+| fixation timeout  | skip trial                   | progresses trial    |
+| stimuli selection | mouse hover                  | mouse click         |
+** Uncertainty in the Consequential task
+*** Sources of uncertainty
+**** Visual discrimination/perceptual uncertainty
 At least two kinds of uncertainty result from visual perception in the Consequential task.
 1. For the smallest d, it can be difficult to determine which stimulus is larger.
 2. It can be difficult to visualize and quantify the sum of the two chosen stimuli in an episode.
    - This makes value computation more difficult, which, consequently, makes value comparison between policies more difficult.
-** Lack of performance feedback
+
+**** Lack of performance feedback
 The lack of performance feedback means participants never know if they are employing the optimal strategy.
-** Lack of knowledge regarding which aspects of the stimuli are important
-Participants don't know if th
 
+**** Lack of knowledge regarding which aspects of the stimuli are important
+Participants don't know if the relative height of the stimuli is the only important attribute of the stimuli. Participants may expore other stimuli attributes such as position on screen (i.e., left/right) or order of presentation on the screen (i.e. first/second). It is also conceivable that participants may check whether g is a function of m, d, or reaction time.
+*** Modulating uncertainty
+Modulating uncertainty is important since one of our primary hypotheses is that the decision process shifts away from value-comparison as uncertainty increases. Below I propose two changes to the current Horizon 1 v2 task which would yield four versions of the task.
+#+NAME: Table 3
+| task version | uncertainty | g          | value feedback |
+|--------------+-------------+------------+----------------|
+| A            | Low         | constant   | yes            |
+| B            | Medium      | stochastic | yes            |
+| C            | Medium      | constant   | no             |
+| D            | High        | stochastic | no             |
+Task version C corresponds to the current version.
+**** Stochastic g (increases uncertainty)
+Rather than g being held constant in each block, g could be sampled before each episode from a distribution with mean g. This would make value computation more difficult but, crucially, would not affect the optimal policy.
+**** Value feedback (decreases uncertainty)
+In the present version of the task, the participants must visualize and quantify the sum of the two selected stimuli in their minds. They must also remember this value to then compare it with the approximated values of other policies. I propose making a version of the task with value feedback in which the sum of the selected stimuli is presented at the end of each episode along with a numerical representation of this sum. This would remove all uncertainty in value computation of the exploited policy.
+** Open questions regarding the task
+1. Since we are primarily interested in value computation in the present project, should we try to eliminate sources of uncertainty that are less related to value computation? For example, should I include "Note: the only relevant attribute of the containers is the amount of water they contain. Other aspects of the containers (e.g., whether the container is on the left or right side of the screen) are irrelevant." in the instructions?
+2. Should there be a monetary performance bonus for participants?
+   - This would increase motivation. I could, at least, provide some performance-related feedback at the end of the experiment. I could also state in the instructions that they will receive a "score" at the end of the experiment. This may be a way of increasing motivation in lieu of a monetary bonus.
+   - The nature of this bonus/feedback is important since participants will likely be more explorative if they only care about finding the optimal policy. If, however, participants know there is a monetary bonus or score proportional to the total amount of reward/"water" acquired in the experiment, then they may be more likely to continue exploiting suboptimal strategies if their associated values are above a certain threshold (i.e., foraging).
+3. The current version of the task (task version C) takes roughly 15 minutes to complete. Should I employ a repeated measures design (i.e. every participant performs all versions of the task), or should I use an independent measures experimental design?
+   - I'm leaning towards independent measures. I think it's more likely that participants will pay full attention and perform if the experiment only last 15 minutes. We can add a repeated measures group later if desired.
+   - One argument in favor of a repeated measures design is seeing how exposure to a a low uncertainty version of the task (e.g. with value feedback) may affect performance in subsequent versions of the task (e.g. without value feedback).
+* Cognitive models
+I propose to investigate two types of cognitive models (i.e., agents): value-comparison driven & consequence driven. I propose to implement to versions of each type of model: option comparison & comparison to threshold.
+** Value comparison
+For the value-comparison case, I propose to use a classical model-free Q-learning algorithm with the following q-table:
+|---+--------------------------+---------------+-------------|
+|   | state                    | action: small | action: big |
+|---+--------------------------+---------------+-------------|
+| / |      <>                  | <>            |   <>        |
+|   | trial 1, small d         | q1            | q2          |
+|   | trial 1, large d         | q3            | q4          |
+|   | trial 2, large $\bar{R}$ | q5            | q6          |
+|   | trial 2, small $\bar{R}$ | q7            | q8          |
+|---+--------------------------+---------------+-------------|
+The update rule would be:
+\begin{equation}
+Q(S, A) \gets Q(S, A) + \alpha (R + \gamma \max_a Q(S', A') - Q(S, A))
+\end{equation}
+The input to the choice rule for a given state will be the q values associated with that state (e.g., decisions in the "trial 1, small d" state will be determined by q1 and q2).
 
+** Value comparison to threshold
+The value comparison to threshold agent's actions are driven by the comparison of the state-action values of the currently exploited strategy to a threshold, sometimes referred to as a "satisfaction" threshold. This decision-making strategy is compelling since we often settle for satisfactory action sequences rather than searching for truly optimal ones.
+The q-table for this agent is the same as in the value comparison case.
+The update rule is also identical.
+We will choice rule similar to the value comparison agent, however, the input to the choice rule function will be the q-value associated with the currently expoited strategy, and a "satistfaction" threshold, \rho. Decisions in the "trial 1, small d" state will be determined by the q-value corresponding to the currently exploited strategy (i.e., the q-value corresponding to the action taken in the previous episode) and \rho.
 
-* Test
-Some stuff about the plot.
-#+BEGIN_SRC jupyter-python
-import matplotlib.pyplot as plt
-x = np.random.random((5, 1))
-y = np.random.random((5, 1))
-plt.plot(x, y)
-plt.show()
-#+END_SRC
+** Consequence comparison
+The consequence-driven agent does not compute value. Instead, this agent seeks high-reward ($\Delta\bar{R}$) states.
+The states and actions are the same as the previous cases, the "q-table", however is updated differently. Since q is typically used to refer to value, I will call the updated values consequence values, or c-values. C-values are updated based on the reward obtained in the current state as well as the change in mean reward between the current and subsequent states.
+The update rule is the following:
+\begin{equation}
+C(S, A) \gets C(S, A) + \alpha (R + \gamma (\bar{R'} - \bar{R}) - C(S, A))
+\end{equation}
+Is is also conceivable that paricipants focus entirely on $\Delta\bar{R}$, and ignore reward acquired in the current state. For this reason, I propose to introduce one addition tunable parameter:
+\begin{equation}
+C(S, A) \gets C(S, A) + \alpha (\beta_1 R + \beta_2 (\bar{R'} - \bar{R}) - C(S, A))
+\end{equation}
 
-#+RESULTS:
-[[file:./.ob-jupyter/1551d142c17728807cb7f7cb3859678e4391e238.png]]
-*
+** Consequence comparison to threshold
+The consequence analog of value comparison to threshold.
+
+** Drift diffusion model choice rule
+We will use a drift diffusion model as the choice rule for all agents. This will enable us to fit participants' reaction times (RT). The input to the DDM is different for each model, but the number of tunable parameters is the same, thus the addition of the DDM does not affect the complexity of the models relative to one another. To begin, I propose to use a constant scaler for the drift rate, $v$, constant diffusion boundaries, and a non-biased starting point, $z$. This reduces the complexity of the model. We may choose to fit these parameters if the simple version of the model results in a poor fit.
+** Model fitting & cross validation
+I propose to fit the reinforcement learning parameters and the DDM parameters simultaneously via hierarchical Bayesian parameter estimation. Hierarchical Bayesian parameter estimation is convenient in that it provides both individual and group-level parameters.
+After model fitting, I propose to use leave-one-out cross validation to determine the goodness-of-fit of each cognitive model.
