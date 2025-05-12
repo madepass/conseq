@@ -4,6 +4,9 @@
 #+PROPERTY: header-args:jupyter-python+ :exports results
 #+OPTIONS: author:nil
 #+OPTIONS: tex:t
+#+OPTIONS: H:9
+#+LATEX_HEADER: \usepackage{svg}
+#+LATEX_HEADER: \usepackage[inkscapelatex=false]{svg}
 
 * Research question and hypotheses
 Does the brain keep track of the values associated with all possible policies, or only the currently exploited one? What drives our decision-making process as value computation becomes less tractable/more uncertain? We hypothesize that, as task complexity and uncertainty increase, the decision-making process goes from: value-comparison driven, to value-comparison-to-threshold driven, to "consequence" driven. By consequence, we mean the change in mean reward between trials (\(\Delta \bar{R}\)). A "consequence" driven agent seeks high reward states, but does not compute value.
@@ -141,6 +144,7 @@ difficulty:  [0.05, 0.2, 0.35]
 The second "table" above shows shows the difference in cumulative reward, for all g and d, between the Small-Big and Big-Big action sequences. These values of g and d yield the optimal strategies outlined in Table 1. For these proposed values, the optimal policy is Big-Big for g=-0.3 and g=0. For g=0.1, Small-Big and Big-big yield identical cumulative reward.  The optimal strategy, in this case, is Small-Big when d is large and Big-Big when d is small. Small-Big and Big-Big yield identical cumulative reward when d is 0.2 (the intermediate value). Finally, the optimal strategy is Small-Big when g=0.3.
 
 ** Instructions for participants
+Participants have as long as they want to read the instructions. They must click the "Click here to begin!" button at the bottom-right of the screen to begin the experiment.
 #+ATTR_ORG: :align center
 [[./img/instructions.png]]
 ** Differences between Horizon 1 v1 & Horizon 1 v2
@@ -167,8 +171,10 @@ The lack of performance feedback means participants never know if they are emplo
 
 **** Lack of knowledge regarding which aspects of the stimuli are important
 Participants don't know if the relative height of the stimuli is the only important attribute of the stimuli. Participants may expore other stimuli attributes such as position on screen (i.e., left/right) or order of presentation on the screen (i.e. first/second). It is also conceivable that participants may check whether g is a function of m, d, or reaction time.
+
 *** Modulating uncertainty
 Modulating uncertainty is important since one of our primary hypotheses is that the decision process shifts away from value-comparison as uncertainty increases. Below I propose two changes to the current Horizon 1 v2 task which would yield four versions of the task.
+
 #+NAME: Table 3
 | task version | uncertainty | g          | value feedback |
 |--------------+-------------+------------+----------------|
@@ -177,10 +183,23 @@ Modulating uncertainty is important since one of our primary hypotheses is that 
 | C            | Medium      | constant   | no             |
 | D            | High        | stochastic | no             |
 Task version C corresponds to the current version.
+
 **** Stochastic g (increases uncertainty)
 Rather than g being held constant in each block, g could be sampled before each episode from a distribution with mean g. This would make value computation more difficult but, crucially, would not affect the optimal policy.
+
 **** Value feedback (decreases uncertainty)
 In the present version of the task, the participants must visualize and quantify the sum of the two selected stimuli in their minds. They must also remember this value to then compare it with the approximated values of other policies. I propose making a version of the task with value feedback in which the sum of the selected stimuli is presented at the end of each episode along with a numerical representation of this sum. This would remove all uncertainty in value computation of the exploited policy.
+
+**** How to set task parameters for each task version
+The different versions of the task can be run by changing two variables in the ="initialize_task_variables"= routine in the "params" code block.
+#+NAME: Table 3
+| task version | ~stochastic_g_flag~ | ~value_feedback_flag~ |
+|--------------+---------------------+-----------------------|
+| A            | False               | True                  |
+| B            | True                | True                  |
+| C            | False               | False                 |
+| D            | True                | False                 |
+
 ** Open questions regarding the task
 1. Since we are primarily interested in value computation in the present project, should we try to eliminate sources of uncertainty that are less related to value computation? For example, should I include "Note: the only relevant attribute of the containers is the amount of water they contain. Other aspects of the containers (e.g., whether the container is on the left or right side of the screen) are irrelevant." in the instructions?
 2. Should there be a monetary performance bonus for participants?
@@ -189,6 +208,8 @@ In the present version of the task, the participants must visualize and quantify
 3. The current version of the task (task version C) takes roughly 15 minutes to complete. Should I employ a repeated measures design (i.e. every participant performs all versions of the task), or should I use an independent measures experimental design?
    - I'm leaning towards independent measures. I think it's more likely that participants will pay full attention and perform if the experiment only last 15 minutes. We can add a repeated measures group later if desired.
    - One argument in favor of a repeated measures design is seeing how exposure to a a low uncertainty version of the task (e.g. with value feedback) may affect performance in subsequent versions of the task (e.g. without value feedback).
+4. For value feedback case, I am showing the value feedback as well as the stimuli reward values. Should I display the stimuli reward values prior to selection, or should I only show the reward values and sum of the selected stimuli post-choice?
+5. Should I make different instructions for the value-feedback case?
 * Cognitive models
 I propose to investigate two types of cognitive models (i.e., agents): value-comparison driven & consequence driven. I propose to implement to versions of each type of model: option comparison & comparison to threshold.
 ** Value comparison
@@ -234,3 +255,7 @@ We will use a drift diffusion model as the choice rule for all agents. This will
 ** Model fitting & cross validation
 I propose to fit the reinforcement learning parameters and the DDM parameters simultaneously via hierarchical Bayesian parameter estimation. Hierarchical Bayesian parameter estimation is convenient in that it provides both individual and group-level parameters.
 After model fitting, I propose to use leave-one-out cross validation to determine the goodness-of-fit of each cognitive model.
+* Preliminary results
+I performed the task myself (version C) and here are some preliminary results.
+#+ATTR_ORG: :align center
+[[./img/decisions.svg]]

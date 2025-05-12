@@ -1,4 +1,6 @@
 * currently working on
+- make better column names
+
 - m & d should be constant within episode
 - Horizon1 environment class (FUN)
   - run bottom cell, g updates one trial too early. troubleshoot.

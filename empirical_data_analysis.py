@@ -1,31 +1,43 @@
 # %% Imports
+import ast
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
+import seaborn as sns
 
 # %% Import data
 data_dir = "/media/maikito/mad_mini/consequential_task/psychopy/h1_v2/data/saved/"
 file_name = "mad_test2_consequential_2025-05-08_15h37.47.862.csv"
 data_mad = pd.read_csv(f"{data_dir}{file_name}")
 
-data_mad.groupby("g_block").count()
+fig_dir = "/media/maikito/mad_mini/consequential_task/figs/"
 
-# identify useful columns
-data_rm["mouse_2.time"]
-data_rm["trials_within_episode.mouse_2.x"]
-data_rm["trials_within_episode.mouse_2.y"]
-data_rm["trials_within_episode.mouse_2.clicked_name"]
-
-data_rm["trials_within_episode.thisN"]  # is this trial within episode?
-data_rm["right_stimuli_outline_1.stopped"]
-
-# %%
 file_path = f"{data_dir}{file_name}"
+# %% Functions
+
+
+def convert_stringified_lists(df):
+    for col in df.columns:
+        # Check only if column is of object (string) type
+        if df[col].dtype == "object":
+            try:
+                # Try evaluating the first non-null value
+                sample = df[col].dropna().iloc[0]
+                evaluated = ast.literal_eval(sample)
+                if isinstance(evaluated, list):
+                    df[col] = df[col].apply(
+                        lambda x: ast.literal_eval(x) if pd.notna(x) else x
+                    )
+            except (ValueError, SyntaxError):
+                # Not a valid Python literal or not a list — skip
+                continue
+    return df
 
 
 def import_psychopy(file_path: str) -> pd.DataFrame:
     """
-    Import psychopy .csv
+    Import .csv export from psychopy experiment
     Returns pandas dataframe
     """
     remove_idx = []  # rows to remove
@@ -40,28 +52,25 @@ def import_psychopy(file_path: str) -> pd.DataFrame:
     remove_idx += instructions_idx
     # drop environment initialization rows
     aux = df["initialize_g_block_variables.started"].isna()
-    new_env_idx = list(np.where(aux == False)[0])
+    new_env_idx = list(np.where(aux == False)[0] - 1)
     remove_idx += new_env_idx[1:]
     aux = list(np.where(df["thisN"] == 3)[0])
     experiment_end_ind = aux
     remove_idx += experiment_end_ind
     df = df.drop(df.index[remove_idx], axis=0)
     df.reset_index(inplace=True)
-    print(df)
     # what columns do we want to keep?
-    breakpoint()
     trial_number = list(np.arange(df.shape[0]) + 1)
     df["trial"] = trial_number
     keep_columns = [
-        "trial",
         "g_block",
-        "thisN",
+        "episodes.thisN",
+        "trial",
         "mouse_2.x",
         "mouse_2.y",
         "mouse_2.leftButton",
         "mouse_2.time",
         "mouse_2.clicked_name",
-        "episodes.thisN",
         "d",
         "m",
         "left_stimulus_height",
@@ -73,20 +82,125 @@ def import_psychopy(file_path: str) -> pd.DataFrame:
         "right_stimulus_1.started",  # right stimulus appears
         "right_stimulus_1.stopped",  # right stimulus disappears
         "left_stimuli_outline_2.started",  # GO signal
+        "trial.stopped",
     ]
-    # mouse trajectories
-    df["mouse_2.x"]
-    df["mouse_2.y"]
-    # choice data
+    df2 = df[keep_columns]
+    df2 = convert_stringified_lists(df2)
+    # better column names
+    df2.rename(
+        columns={
+            "g_block": "g",
+            "episodes.thisN": "episode",
+            "mouse_2.x": "mouse_x",
+            "mouse_2.y": "mouse_y",
+            "mouse_2.leftButton": "mouse_click",
+            "mouse_2.time": "mouse_time",
+            "left_chosen": "chose_left",
+            "chose_bigger": "chose_big",
+            "left_stimuli_outline_2.started": "go",
+            "trial.stopped": "mouse_click_time",
+        },
+        inplace=True,
+    )
+    df2 = df2.astype({"episode": int})
+    df2.episode = df2.episode + 1
+    return df2
 
-    return df
+
+def stim_height_categories(series):
+    new_col = []
+    for i in series:
+        if i < 0.4:
+            new_col.append("low")
+        elif 0.4 < i < 0.6:
+            new_col.append("medium")
+        else:
+            new_col.append("high")
+    return new_col
 
 
+# %%
 data = import_psychopy(file_path)
 
+# %% Exploratory analysis
 
-# %% Import psydata
-file_name = "riccardo_consequential_2025-04-24_18h09.56.705.psydat"
-psydata = fromFile(f"{data_dir}{file_name}")
-save_name = f"{data_dir}psydat_widetext.csv"
-psydata.saveAsWideText(save_name, delim=",")
+# visualize decisions
+fig = plt.figure(figsize=(10, 3))
+plt.scatter(np.arange(len(data.trial)), data.chose_big, s=2, color="k")
+ax = plt.gca()
+ax.vlines(x=[60, 120, 180], ymin=0, ymax=1, color="k", linestyles="dashed")
+ax.set_xlim(left=0, right=240)
+xticks = [60, 120, 180, 240]
+ax.set_xticks(xticks, list(map(str, xticks)))
+yticks = [0, 1]
+ax.set_yticks(yticks, ["small", "big"])
+ax.set_ylabel("choice")
+ax.set_xlabel("trial")
+g_x = list(np.arange(30, 240, 60))
+for i, g in enumerate(data.g.unique()):
+    plt.text(g_x[i], 0.5, f"g = {g}", horizontalalignment="center")
+ax.spines[["right", "top"]].set_visible(False)
+plt.tight_layout()
+save_name = fig_dir + "decisions.svg"
+fig.savefig(save_name)
+
+
+# reaction time vs. d, g, mean(R), pre/post-learning
+data["rt"] = data.mouse_click_time - data.go
+fig = plt.figure(figsize=(3, 2))
+plt.hist(data.rt, color="k", fill=False)
+ax = plt.gca()
+ax.set_ylabel("count (trials)")
+ax.set_xlabel("RT (s)")
+ax.spines[["right", "top"]].set_visible(False)
+plt.tight_layout()
+save_name = fig_dir + "rt_hist.svg"
+fig.savefig(save_name)
+
+
+fig = plt.figure(figsize=(5, 5))
+bp = sns.barplot(data=data, x="g", y="rt", color="k", fill=False)
+ax = plt.gca()
+ax.set_ylabel("RT (s)")
+ax.spines[["right", "top"]].set_visible(False)
+plt.tight_layout()
+save_name = fig_dir + "rt_vs_g.svg"
+fig.savefig(save_name)
+
+
+fig = plt.figure(figsize=(5, 5))
+bp = sns.barplot(data=data, x="d", y="rt", color="k", fill=False)
+ax = plt.gca()
+ax.set_ylabel("RT (s)")
+ax.spines[["right", "top"]].set_visible(False)
+plt.tight_layout()
+save_name = fig_dir + "rt_vs_d.svg"
+fig.savefig(save_name)
+
+
+mean_stim_height = (data.left_stimulus_height + data.right_stimulus_height) / 2
+fig = plt.figure(figsize=(5, 5))
+plt.hist(mean_stim_height, color="k", fill=False)
+ax = plt.gca()
+ax.set_ylabel("count (trials)")
+ax.set_xlabel(r"$\bar{R}$")
+ax.spines[["right", "top"]].set_visible(False)
+plt.tight_layout()
+save_name = fig_dir + "r_hist.svg"
+fig.savefig(save_name)
+
+
+data["stim_mean"] = mean_stim_height
+data["stim_mean_cat"] = stim_height_categories(mean_stim_height)
+data["stim_mean_cat"] = pd.Categorical(
+    data["stim_mean_cat"], categories=["low", "medium", "high"], ordered=True
+)
+fig = plt.figure(figsize=(5, 5))
+bp = sns.barplot(data=data, x="stim_mean_cat", y="rt", color="k", fill=False)
+ax = plt.gca()
+ax.set_ylabel("RT (s)")
+ax.set_xlabel(r"$\bar{R}$")
+ax.spines[["right", "top"]].set_visible(False)
+plt.tight_layout()
+save_name = fig_dir + "rt_vs_r.svg"
+fig.savefig(save_name)
