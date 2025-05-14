@@ -17,6 +17,10 @@ file_path = f"{data_dir}{file_name}"
 # %% Functions
 
 
+def letter_annotation(ax, xoffset, yoffset, letter):
+    ax.text(xoffset, yoffset, letter, transform=ax.transAxes, size=12, weight="bold")
+
+
 def convert_stringified_lists(df):
     for col in df.columns:
         # Check only if column is of object (string) type
@@ -203,4 +207,77 @@ ax.set_xlabel(r"$\bar{R}$")
 ax.spines[["right", "top"]].set_visible(False)
 plt.tight_layout()
 save_name = fig_dir + "rt_vs_r.svg"
+fig.savefig(save_name)
+
+# %% Big daddy figure
+fig = plt.figure(figsize=(10, 5))
+# create subfigures for first and second row
+(row1fig, row2fig) = fig.subfigures(2, 1, height_ratios=[1, 1])
+# split bottom row subfigure in two subfigures
+(fig_row2left, fig_row2right) = row2fig.subfigures(
+    1, 2, wspace=0.000, width_ratios=(1, 2)
+)
+
+# row 1 plots
+row1_axs = row1fig.subplots(1, 1)
+ax = row1_axs
+ax.scatter(np.arange(len(data.trial)), data.chose_big, s=2, color="k")
+ax.vlines(x=[60, 120, 180], ymin=0, ymax=1, color="k", linestyles="dashed")
+ax.set_xlim(left=0, right=240)
+xticks = [60, 120, 180, 240]
+ax.set_xticks(xticks, list(map(str, xticks)))
+yticks = [0, 1]
+ax.set_yticks(yticks, ["small", "big"])
+ax.set_ylabel("choice")
+ax.set_xlabel("trial")
+g_x = list(np.arange(30, 240, 60))
+for i, g in enumerate(data.g.unique()):
+    plt.text(g_x[i], 0.5, f"g = {g}", horizontalalignment="center")
+ax.spines[["right", "top"]].set_visible(False)
+letter_annotation(ax, -0.1, 1, "A")
+
+row1fig.subplots_adjust(bottom=0.2)
+
+# row 2 plots
+
+axs = fig_row2left.subplots(2, 1)
+
+ax = axs[0]
+ax.hist(data.rt, color="k", fill=False)
+ax.set_ylabel("count (trials)")
+ax.set_xlabel("RT (s)")
+ax.spines[["right", "top"]].set_visible(False)
+letter_annotation(ax, -0.5, 1, "B")
+
+ax = axs[1]
+ax.hist(mean_stim_height, color="k", fill=False)
+ax.set_ylabel("count (trials)")
+ax.set_xlabel(r"$\bar{R}$")
+ax.spines[["right", "top"]].set_visible(False)
+
+fig_row2left.subplots_adjust(left=0.30, right=0.8, bottom=0.2, top=1, hspace=0.5)
+
+axs = fig_row2right.subplots(1, 3, sharey=True)
+
+ax = axs[0]
+bp = sns.barplot(data=data, x="d", y="rt", color="k", fill=False, ax=ax)
+ax.set_ylabel("RT (s)")
+ax.spines[["right", "top"]].set_visible(False)
+letter_annotation(ax, -0.4, 1, "C")
+
+
+ax = axs[1]
+bp = sns.barplot(data=data, x="g", y="rt", color="k", fill=False, ax=ax)
+ax.set(ylabel="")
+ax.spines[["right", "top"]].set_visible(False)
+
+ax = axs[2]
+bp = sns.barplot(data=data, x="stim_mean_cat", y="rt", color="k", fill=False, ax=ax)
+ax.set_xlabel(r"$\bar{R}$")
+ax.set(ylabel="")
+ax.spines[["right", "top"]].set_visible(False)
+
+fig_row2right.subplots_adjust(left=0, right=0.9, bottom=0.2, top=1)
+
+save_name = fig_dir + "big_daddy.svg"
 fig.savefig(save_name)

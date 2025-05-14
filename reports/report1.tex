@@ -1,4 +1,4 @@
-% Created 2025-05-12 Mon 19:54
+% Created 2025-05-14 Wed 15:03
 % Intended LaTeX compiler: pdflatex
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
@@ -22,7 +22,7 @@
  pdftitle={Report 1},
  pdfkeywords={},
  pdfsubject={},
- pdfcreator={Emacs 29.3 (Org mode 9.7.19)}, 
+ pdfcreator={Emacs 29.3 (Org mode 9.7.29)}, 
  pdflang={English}}
 \usepackage{biblatex}
 \addbibresource{~/mad/scienctific_articles/My Library.bib}
@@ -32,13 +32,13 @@
 \tableofcontents
 
 \section{Research question and hypotheses}
-\label{sec:orgd581b77}
-Does the brain keep track of the values associated with all possible policies, or only the currently exploited one? What drives our decision-making process as value computation becomes less tractable/more uncertain? We hypothesize that, as task complexity and uncertainty increase, the decision-making process goes from: value-comparison driven, to value-comparison-to-threshold driven, to ``consequence'' driven. By consequence, we mean the change in mean reward between trials (\(\Delta \bar{R}\)). A ``consequence'' driven agent seeks high reward states, but does not compute value.
+\label{sec:org26accf7}
+Does the brain keep track of the values associated with all possible policies, or only the currently exploited one? What drives our decision-making process as value computation becomes less tractable/more uncertain? We hypothesize that, as task complexity and uncertainty increase, the decision-making process goes from: value-comparison driven, to value-comparison-to-threshold driven, to ``consequence'' driven. By consequence, we mean the change in mean reward between trials (\(\Delta \bar{R}\)). A ``consequence'' driven agent seeks high reward states, but does not compute value in the traditional sense.
 To test the above hypotheses, we developed a novel perceptual decision-making task.
 \section{Task}
-\label{sec:org1f5c639}
+\label{sec:org5f63883}
 \subsection{Stimuli generation}
-\label{sec:orgeb73bee}
+\label{sec:orgf5475db}
 The mean of the stimuli in Trial 1, \(m\), has bounds: \(\\ ( |g| + \frac{\max d}{2} , 1 - |g| - \frac{\max d}{2} )\) \\
 There are 10 possible values of m for each g. These values are linearly spaced between the lower and upper bounds and are sampled at random before each episode. These bounds ensure the minimum and maximum stimuli values are 0 and 1, respectively. \\
 
@@ -54,20 +54,20 @@ Trial 2 stimuli heights: \(\begin{cases}
 Difficulty, d, determines the magnitude of the difference in stimuli heights in an episode. A single value of d \(\in\) \{0.05, 0.2, 0.35\} is randomly chosen before each episode. d is constant within an episode.  \\
 Gain, g, determines the magnitude and sign of the consequence of the Trial 1 choice. Each block consists of 30 episodes and has a single value of g. In total there are 4 blocks, one for each value of g \(\in\) \{-0.3, 0, 0.1, 0.3\}. The order of these blocks is random. \\
 \subsection{Determining Gain (g) and Difficulty (d)}
-\label{sec:org83ee06c}
+\label{sec:org98d1912}
 Gain and difficulty are two of the most important task parameters. They determine the magnitude (and sign) of consequence as well as the magnitude of the difference between stimuli presented in a given trial. These parameters determine the optimal strategy.
 Proper selection of g and d should allow us to determine whether participants' decisions are primarily determined by 1) value comparison, 2) comparison to threshold, or 3) ``consequence''.
 \subsubsection{Original values}
-\label{sec:orgfa28eac}
+\label{sec:org72e5117}
 The previous g was 0.3 for Horizon 1. The previous d values were: [0.01, 0.05, 0.1, 0.15, 0.2].
 
 These values of g and d meant that Small-Big was always the optimal action sequence/policy in Horizon 1. In other words, giving up 0.2 units of reward in trial 1 was always worth it since the mean reward of the stimuli would increase by 0.3.
 \subsubsection{Updated values}
-\label{sec:orgd9566e3}
+\label{sec:orge945ab2}
 More values of g, along with appropriate values of d, are required in order to determine how humans decide in the consequential task. I propose four values of g:
 
 \begin{table}[htbp]
-\label{Table 1}
+\caption{\label{Table 1}Values of gain (g) for Horizon 1 v2}
 \centering
 \begin{tabular}{llrl}
 \hline
@@ -82,7 +82,7 @@ D & G > c & 0.3 & Small-big\\
 
 I propose the following d values: [0.05, 0.2, 0.35]
 
-The data below is the output from a Python script in which I computed the cumulative reward for the two possible action sequences (small-big \& big-big) and for all combinations of g and d:
+The data below is the output from a Python script in which I computed the cumulative reward for the two logically viable action sequences (small-big \& big-big) and for all combinations of g and d:
 
 \phantomsection
 \label{}
@@ -108,16 +108,16 @@ difficulty:  [0.05, 0.2, 0.35]
 
 The second ``table'' above shows shows the difference in cumulative reward, for all g and d, between the Small-Big and Big-Big action sequences. These values of g and d yield the optimal strategies outlined in Table 1. For these proposed values, the optimal policy is Big-Big for g=-0.3 and g=0. For g=0.1, Small-Big and Big-big yield identical cumulative reward.  The optimal strategy, in this case, is Small-Big when d is large and Big-Big when d is small. Small-Big and Big-Big yield identical cumulative reward when d is 0.2 (the intermediate value). Finally, the optimal strategy is Small-Big when g=0.3.
 \subsection{Instructions for participants}
-\label{sec:orgcf618a0}
+\label{sec:org23bc4b6}
 Participants have as long as they want to read the instructions. They must click the ``Click here to begin!'' button at the bottom-right of the screen to begin the experiment.
 \begin{center}
 \includegraphics[width=.9\linewidth]{./img/instructions.png}
 \end{center}
 \subsection{Differences between Horizon 1 v1 \& Horizon 1 v2}
-\label{sec:orgc6653ef}
+\label{sec:org74719e6}
 Table 2 shows most of the important differences between version 1 and version 2 of the task.
 \begin{table}[htbp]
-\label{Table 2}
+\caption{\label{Table 2}Consequential task differences (v1 vs. v2)}
 \centering
 \begin{tabular}{lll}
 attribute & v1 & v2\\
@@ -129,12 +129,13 @@ fixation timeout & skip trial & progresses trial\\
 stimuli selection & mouse hover & mouse click\\
 \end{tabular}
 \end{table}
+There are many minor differences I have not mentioned here. In addition, please see the new task versions (table \ref{task_version_variables}) which each are characterized by different levels of uncertainty.
 \subsection{Uncertainty in the Consequential task}
-\label{sec:org6d975d8}
+\label{sec:org3e080e3}
 \subsubsection{Sources of uncertainty}
-\label{sec:org05fdfeb}
+\label{sec:orga36c981}
 \paragraph{Visual discrimination/perceptual uncertainty}
-\label{sec:orgfb331f8}
+\label{sec:orgcf736e2}
 At least two kinds of uncertainty result from visual perception in the Consequential task.
 \begin{enumerate}
 \item For the smallest d, it can be difficult to determine which stimulus is larger.
@@ -144,17 +145,17 @@ At least two kinds of uncertainty result from visual perception in the Consequen
 \end{itemize}
 \end{enumerate}
 \paragraph{Lack of performance feedback}
-\label{sec:orge686105}
+\label{sec:org6848ba5}
 The lack of performance feedback means participants never know if they are employing the optimal strategy.
 \paragraph{Lack of knowledge regarding which aspects of the stimuli are important}
-\label{sec:org01d1ce3}
+\label{sec:org947c492}
 Participants don't know if the relative height of the stimuli is the only important attribute of the stimuli. Participants may expore other stimuli attributes such as position on screen (i.e., left/right) or order of presentation on the screen (i.e. first/second). It is also conceivable that participants may check whether g is a function of m, d, or reaction time.
 \subsubsection{Modulating uncertainty}
-\label{sec:orgcadde48}
+\label{sec:org02427c8}
 Modulating uncertainty is important since one of our primary hypotheses is that the decision process shifts away from value-comparison as uncertainty increases. Below I propose two changes to the current Horizon 1 v2 task which would yield four versions of the task.
 
 \begin{table}[htbp]
-\label{Table 3}
+\caption{\label{task_versions}4 potential versions of the task with varying uncertainty}
 \centering
 \begin{tabular}{llll}
 task version & uncertainty & g & value feedback\\
@@ -165,18 +166,19 @@ C & Medium & constant & no\\
 D & High & stochastic & no\\
 \end{tabular}
 \end{table}
-Task version C corresponds to the current version.
+Task version C corresponds to the current version. For the sake of feasability, I propose to run only versions A, C, and D of the task.
 \paragraph{Stochastic g (increases uncertainty)}
-\label{sec:org89c95e8}
+\label{sec:org224872c}
 Rather than g being held constant in each block, g could be sampled before each episode from a distribution with mean g. This would make value computation more difficult but, crucially, would not affect the optimal policy.
 \paragraph{Value feedback (decreases uncertainty)}
-\label{sec:org51c065d}
+\label{sec:org25a5d67}
 In the present version of the task, the participants must visualize and quantify the sum of the two selected stimuli in their minds. They must also remember this value to then compare it with the approximated values of other policies. I propose making a version of the task with value feedback in which the sum of the selected stimuli is presented at the end of each episode along with a numerical representation of this sum. This would remove all uncertainty in value computation of the exploited policy.
 \paragraph{How to set task parameters for each task version}
-\label{sec:org7f10680}
+\label{sec:orgdc51b76}
 The different versions of the task can be run by changing two variables in the \texttt{"initialize\_task\_variables"} routine in the ``params'' code block.
+
 \begin{table}[htbp]
-\label{Table 3}
+\caption{\label{task_version_variables}Python variables pertaining to uncertainty}
 \centering
 \begin{tabular}{lll}
 task version & \texttt{stochastic\_g\_flag} & \texttt{value\_feedback\_flag}\\
@@ -187,8 +189,70 @@ C & False & False\\
 D & True & False\\
 \end{tabular}
 \end{table}
+\subsection{Post-task survey}
+\label{sec:org6ffb2cc}
+Participants will be redirected to a web page with a survey to fill out upon completing the task. The questions are as follows:
+\begin{enumerate}
+\item Gender
+\begin{itemize}
+\item Man
+\item Woman
+\item Other/Prefer not to say
+\end{itemize}
+\item Age
+\begin{itemize}
+\item 16-22
+\item 23-27
+\item 28-32
+\item >32
+\end{itemize}
+\item Education (completed)
+\begin{itemize}
+\item High School
+\item Undergraduate
+\item Masters
+\item PhD/other advanced degrees
+\end{itemize}
+\item How well do you think you performed?
+\begin{itemize}
+\item from 1 to 5
+\end{itemize}
+\item Did you understand the task instructions?
+\begin{itemize}
+\item long text answer
+\end{itemize}
+\item Did you notice any differences between the different ``environments''? If so, please describe them.
+\begin{itemize}
+\item long text answer
+\end{itemize}
+\item What strategies did you try in order to maximize the water you received?
+\begin{itemize}
+\item long text answer
+\end{itemize}
+\item How did you determine if a strategy was good?
+\begin{itemize}
+\item long text answer
+\end{itemize}
+\item What strategy(ies), if any, did you decide were good? Did you use different strategies in the different ``environments''? If you can remember, please describe which strategies you determined were good for each of the 4 environments?
+\item How confident are you that you found good strategies?
+\begin{itemize}
+\item from 1 to 5
+\end{itemize}
+\item If you can remember, how confident were you that you found a good strategy in each of the 4 environments? Please describe your confidence level for each environment individually.
+\item (OPTIONAL) General feedback: all feedback is appreciated!
+\begin{itemize}
+\item long text answer
+\end{itemize}
+\item (OPTIONAL) If you would like us to be able to share results with you, please provide your email address.
+\begin{itemize}
+\item short text answer
+\end{itemize}
+\end{enumerate}
+\subsection{Online deployment via Pavlovia}
+\label{sec:org741ad64}
+The task was made using the Builder of the PsychoPy desktop application. The task code and resources were then uploaded to a private GitLab repository and hosted online via the Pavlovia platform. The ``low certainty'' version of the task is available online and can be run by clicking on \href{https://run.pavlovia.org/madepass/consequential\_task\_a}{this link}. The other versions of the task are fully implemented, I just have not finished getting them hosted on the Pavlovia platform at the time of writing.
 \subsection{Open questions regarding the task}
-\label{sec:org96576c3}
+\label{sec:orgdec0582}
 \begin{enumerate}
 \item Since we are primarily interested in value computation in the present project, should we try to eliminate sources of uncertainty that are less related to value computation? For example, should I include ``Note: the only relevant attribute of the containers is the amount of water they contain. Other aspects of the containers (e.g., whether the container is on the left or right side of the screen) are irrelevant.'' in the instructions?
 \item Should there be a monetary performance bonus for participants?
@@ -201,16 +265,18 @@ D & True & False\\
 \item I'm leaning towards independent measures. I think it's more likely that participants will pay full attention and perform if the experiment only last 15 minutes. We can add a repeated measures group later if desired.
 \item One argument in favor of a repeated measures design is seeing how exposure to a a low uncertainty version of the task (e.g. with value feedback) may affect performance in subsequent versions of the task (e.g. without value feedback).
 \end{itemize}
-\item For value feedback case, I am showing the value feedback as well as the stimuli reward values. Should I display the stimuli reward values prior to selection, or should I only show the reward values and sum of the selected stimuli post-choice?
-\item Should I make different instructions for the value-feedback case?
+\item In the ``low uncertainty'' version of the task, should I display the stimuli reward values prior to selection, or should I only show the reward values and sum of the selected stimuli post-choice? If I show the reward stimuli values pre-choice, this would eliminate all perceptual uncertainty.
+\item Should I make different instructions for each version of the task?
 \end{enumerate}
 \section{Cognitive models}
-\label{sec:org92a0b0d}
+\label{sec:org91fa735}
 I propose to investigate two types of cognitive models (i.e., agents): value-comparison driven \& consequence driven. I propose to implement to versions of each type of model: option comparison \& comparison to threshold.
 \subsection{Value comparison}
-\label{sec:orgdfd3e26}
+\label{sec:orgb3fb68a}
 For the value-comparison case, I propose to use a classical model-free Q-learning algorithm with the following q-table:
-\begin{center}
+\begin{table}[htbp]
+\caption{q-table for value comparison agents}
+\centering
 \begin{tabular}{|l|l|l|}
 \hline
 state & action: small & action: big\\
@@ -221,20 +287,20 @@ trial 2, large \(\bar{R}\) & q5 & q6\\
 trial 2, small \(\bar{R}\) & q7 & q8\\
 \hline
 \end{tabular}
-\end{center}
+\end{table}
 The update rule would be:
 \begin{equation}
 Q(S, A) \gets Q(S, A) + \alpha (R + \gamma \max_a Q(S', A') - Q(S, A))
 \end{equation}
 The input to the choice rule for a given state will be the q values associated with that state (e.g., decisions in the ``trial 1, small d'' state will be determined by q1 and q2).
 \subsection{Value comparison to threshold}
-\label{sec:orgba57497}
+\label{sec:org25ce274}
 The value comparison to threshold agent's actions are driven by the comparison of the state-action values of the currently exploited strategy to a threshold, sometimes referred to as a ``satisfaction'' threshold. This decision-making strategy is compelling since we often settle for satisfactory action sequences rather than searching for truly optimal ones.
 The q-table for this agent is the same as in the value comparison case.
 The update rule is also identical.
 We will choice rule similar to the value comparison agent, however, the input to the choice rule function will be the q-value associated with the currently expoited strategy, and a ``satistfaction'' threshold, \(\rho\). Decisions in the ``trial 1, small d'' state will be determined by the q-value corresponding to the currently exploited strategy (i.e., the q-value corresponding to the action taken in the previous episode) and \(\rho\).
 \subsection{Consequence comparison}
-\label{sec:orgc9b943e}
+\label{sec:orgf8ad6f9}
 The consequence-driven agent does not compute value. Instead, this agent seeks high-reward (\(\Delta\bar{R}\)) states.
 The states and actions are the same as the previous cases, the ``q-table'', however is updated differently. Since q is typically used to refer to value, I will call the updated values consequence values, or c-values. C-values are updated based on the reward obtained in the current state as well as the change in mean reward between the current and subsequent states.
 The update rule is the following:
@@ -246,19 +312,25 @@ Is is also conceivable that paricipants focus entirely on \(\Delta\bar{R}\), and
 C(S, A) \gets C(S, A) + \alpha (\beta_1 R + \beta_2 (\bar{R'} - \bar{R}) - C(S, A))
 \end{equation}
 \subsection{Consequence comparison to threshold}
-\label{sec:orgc5b789e}
+\label{sec:org0c01473}
 The consequence analog of value comparison to threshold.
 \subsection{Drift diffusion model choice rule}
-\label{sec:org5646890}
+\label{sec:orgd76db63}
 We will use a drift diffusion model as the choice rule for all agents. This will enable us to fit participants' reaction times (RT). The input to the DDM is different for each model, but the number of tunable parameters is the same, thus the addition of the DDM does not affect the complexity of the models relative to one another. To begin, I propose to use a constant scaler for the drift rate, \(v\), constant diffusion boundaries, and a non-biased starting point, \(z\). This reduces the complexity of the model. We may choose to fit these parameters if the simple version of the model results in a poor fit.
 \subsection{Model fitting \& cross validation}
-\label{sec:org744bcde}
+\label{sec:org78551c8}
 I propose to fit the reinforcement learning parameters and the DDM parameters simultaneously via hierarchical Bayesian parameter estimation. Hierarchical Bayesian parameter estimation is convenient in that it provides both individual and group-level parameters.
 After model fitting, I propose to use leave-one-out cross validation to determine the goodness-of-fit of each cognitive model.
+\section{Brief background}
+\label{sec:orgb1ff173}
+Many algorithms have been shown to reliably reproduce human decisions in particular contexts. The question of how to determine which of these algorithms best represent the true underlying cognitive function of the brain remains open. One common approach is to fit the tunable parameters of reinforcement learning models to maximize the likelihood of producing the observed decision data. Value-comparison based RL models have been shown to reproduce human behavior in various contexts. These models have also been combined with drift diffusion models to fit not only participants' actions, but reaction times as well\autocite{fontanesiReinforcementLearningDiffusion2019}. Though value-comparison based models have traditionally been favored in most contexts, recent findings have shown comparison-to-threshold based models exhibit greater goodness-of-fit in classical reinforcement learning tasks irrespective of uncertainty level\autocite{zidHumansForageReward2024}. This finding, though fascinating, does not paint a complete picture of decision making under uncertainty. I believe humans rely on value-comparison in situations where value-computation is cheap, and then resort to comparison-to-threshold once the cost of value-computation reaches a certain level. Moreover, it seems logical that as this cost rises we should increasingly rely on heuristics since value-computation is intractable. One such heuristic is ``consequence''. Based on our previous research, I suspect participants may, in fact, act as \(\bar{R}\) (i.e., mean reward of a particular state) maximizing agents when task uncertainty reaches a certain threshold\autocite{cecchiniConsequenceAssessmentBehavioral2023}. Two key differences between the Dynamic Consequential Task and the Restless Bandit Task are: the presence of perceptual uncertainty in our task, and the fact that agent actions in our task have a predictable effect on the environment.
 \section{Preliminary results}
-\label{sec:orgc623854}
-I performed the task myself (version C) and here are some preliminary results.
+\label{sec:orgfb66c43}
+I performed the task myself (version C). I confirmed the Psychopy output contained all the necessary data to perform the desired analyses.
 \begin{center}
-\includesvg[width=.9\linewidth]{./img/decisions}
+\includesvg[width=.9\linewidth]{img/big_daddy}
 \end{center}
+\section{Citations}
+\label{sec:org9d1f88b}
+\printbibliography
 \end{document}

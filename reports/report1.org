@@ -5,11 +5,13 @@
 #+OPTIONS: author:nil
 #+OPTIONS: tex:t
 #+OPTIONS: H:9
-#+LATEX_HEADER: \usepackage{svg}
 #+LATEX_HEADER: \usepackage[inkscapelatex=false]{svg}
+#+LATEX_HEADER: \usepackage{svg}
+# #+CITE_EXPORT: biblatex
+# #+BIBLIOGARAPHY: ~/mad/scienctific_articles/My Library.bib
 
 * Research question and hypotheses
-Does the brain keep track of the values associated with all possible policies, or only the currently exploited one? What drives our decision-making process as value computation becomes less tractable/more uncertain? We hypothesize that, as task complexity and uncertainty increase, the decision-making process goes from: value-comparison driven, to value-comparison-to-threshold driven, to "consequence" driven. By consequence, we mean the change in mean reward between trials (\(\Delta \bar{R}\)). A "consequence" driven agent seeks high reward states, but does not compute value.
+Does the brain keep track of the values associated with all possible policies, or only the currently exploited one? What drives our decision-making process as value computation becomes less tractable/more uncertain? We hypothesize that, as task complexity and uncertainty increase, the decision-making process goes from: value-comparison driven, to value-comparison-to-threshold driven, to "consequence" driven. By consequence, we mean the change in mean reward between trials (\(\Delta \bar{R}\)). A "consequence" driven agent seeks high reward states, but does not compute value in the traditional sense.
 To test the above hypotheses, we developed a novel perceptual decision-making task.
 
 * Task
@@ -42,6 +44,7 @@ These values of g and d meant that Small-Big was always the optimal action seque
 More values of g, along with appropriate values of d, are required in order to determine how humans decide in the consequential task. I propose four values of g:
 
 #+NAME: Table 1
+#+CAPTION: Values of gain (g) for Horizon 1 v2
 #+ATTR_ODT: :rel-width 50
 |-----------+-------+------+---------------------|
 | Condition | G     |    g | \pi*                  |
@@ -53,7 +56,7 @@ More values of g, along with appropriate values of d, are required in order to d
 
 I propose the following d values: [0.05, 0.2, 0.35]
 
-The data below is the output from a Python script in which I computed the cumulative reward for the two possible action sequences (small-big & big-big) and for all combinations of g and d:
+The data below is the output from a Python script in which I computed the cumulative reward for the two logically viable action sequences (small-big & big-big) and for all combinations of g and d:
 
 #+begin_src  jupyter-python
 import random
@@ -150,6 +153,7 @@ Participants have as long as they want to read the instructions. They must click
 ** Differences between Horizon 1 v1 & Horizon 1 v2
 Table 2 shows most of the important differences between version 1 and version 2 of the task.
 #+NAME: Table 2
+#+CAPTION: Consequential task differences (v1 vs. v2)
 #+ATTR_ODT: :rel-width 50
 | attribute         | v1                           | v2                  |
 |-------------------+------------------------------+---------------------|
@@ -158,6 +162,7 @@ Table 2 shows most of the important differences between version 1 and version 2 
 | \pi*                | Small-Big                    | g & d dependent     |
 | fixation timeout  | skip trial                   | progresses trial    |
 | stimuli selection | mouse hover                  | mouse click         |
+There are many minor differences I have not mentioned here. In addition, please see the new task versions (table [[task_version_variables]]) which each are characterized by different levels of uncertainty.
 ** Uncertainty in the Consequential task
 *** Sources of uncertainty
 **** Visual discrimination/perceptual uncertainty
@@ -175,14 +180,15 @@ Participants don't know if the relative height of the stimuli is the only import
 *** Modulating uncertainty
 Modulating uncertainty is important since one of our primary hypotheses is that the decision process shifts away from value-comparison as uncertainty increases. Below I propose two changes to the current Horizon 1 v2 task which would yield four versions of the task.
 
-#+NAME: Table 3
+#+NAME: task_versions
+#+CAPTION: 4 potential versions of the task with varying uncertainty
 | task version | uncertainty | g          | value feedback |
 |--------------+-------------+------------+----------------|
 | A            | Low         | constant   | yes            |
 | B            | Medium      | stochastic | yes            |
 | C            | Medium      | constant   | no             |
 | D            | High        | stochastic | no             |
-Task version C corresponds to the current version.
+Task version C corresponds to the current version. For the sake of feasability, I propose to run only versions A, C, and D of the task.
 
 **** Stochastic g (increases uncertainty)
 Rather than g being held constant in each block, g could be sampled before each episode from a distribution with mean g. This would make value computation more difficult but, crucially, would not affect the optimal policy.
@@ -192,13 +198,51 @@ In the present version of the task, the participants must visualize and quantify
 
 **** How to set task parameters for each task version
 The different versions of the task can be run by changing two variables in the ="initialize_task_variables"= routine in the "params" code block.
-#+NAME: Table 3
+
+#+NAME: task_version_variables
+#+CAPTION: Python variables pertaining to uncertainty
 | task version | ~stochastic_g_flag~ | ~value_feedback_flag~ |
 |--------------+---------------------+-----------------------|
 | A            | False               | True                  |
 | B            | True                | True                  |
 | C            | False               | False                 |
 | D            | True                | False                 |
+** Post-task survey
+Participants will be redirected to a web page with a survey to fill out upon completing the task. The questions are as follows:
+1. Gender
+   - Man
+   - Woman
+   - Other/Prefer not to say
+2. Age
+   - 16-22
+   - 23-27
+   - 28-32
+   - >32
+3. Education (completed)
+   - High School
+   - Undergraduate
+   - Masters
+   - PhD/other advanced degrees
+4. How well do you think you performed?
+   - from 1 to 5
+5. Did you understand the task instructions?
+   - long text answer
+6. Did you notice any differences between the different "environments"? If so, please describe them.
+   - long text answer
+7. What strategies did you try in order to maximize the water you received?
+   - long text answer
+8. How did you determine if a strategy was good?
+   - long text answer
+9. What strategy(ies), if any, did you decide were good? Did you use different strategies in the different "environments"? If you can remember, please describe which strategies you determined were good for each of the 4 environments?
+10. How confident are you that you found good strategies?
+    - from 1 to 5
+11. If you can remember, how confident were you that you found a good strategy in each of the 4 environments? Please describe your confidence level for each environment individually.
+12. (OPTIONAL) General feedback: all feedback is appreciated!
+    - long text answer
+13. (OPTIONAL) If you would like us to be able to share results with you, please provide your email address.
+    - short text answer
+** Online deployment via Pavlovia
+The task was made using the Builder of the PsychoPy desktop application. The task code and resources were then uploaded to a private GitLab repository and hosted online via the Pavlovia platform. The "low certainty" version of the task is available online and can be run by clicking on [[https://run.pavlovia.org/madepass/consequential_task_a][this link]]. The other versions of the task are fully implemented, I just have not finished getting them hosted on the Pavlovia platform at the time of writing.
 
 ** Open questions regarding the task
 1. Since we are primarily interested in value computation in the present project, should we try to eliminate sources of uncertainty that are less related to value computation? For example, should I include "Note: the only relevant attribute of the containers is the amount of water they contain. Other aspects of the containers (e.g., whether the container is on the left or right side of the screen) are irrelevant." in the instructions?
@@ -208,12 +252,13 @@ The different versions of the task can be run by changing two variables in the =
 3. The current version of the task (task version C) takes roughly 15 minutes to complete. Should I employ a repeated measures design (i.e. every participant performs all versions of the task), or should I use an independent measures experimental design?
    - I'm leaning towards independent measures. I think it's more likely that participants will pay full attention and perform if the experiment only last 15 minutes. We can add a repeated measures group later if desired.
    - One argument in favor of a repeated measures design is seeing how exposure to a a low uncertainty version of the task (e.g. with value feedback) may affect performance in subsequent versions of the task (e.g. without value feedback).
-4. For value feedback case, I am showing the value feedback as well as the stimuli reward values. Should I display the stimuli reward values prior to selection, or should I only show the reward values and sum of the selected stimuli post-choice?
-5. Should I make different instructions for the value-feedback case?
+4. In the "low uncertainty" version of the task, should I display the stimuli reward values prior to selection, or should I only show the reward values and sum of the selected stimuli post-choice? If I show the reward stimuli values pre-choice, this would eliminate all perceptual uncertainty.
+5. Should I make different instructions for each version of the task?
 * Cognitive models
 I propose to investigate two types of cognitive models (i.e., agents): value-comparison driven & consequence driven. I propose to implement to versions of each type of model: option comparison & comparison to threshold.
 ** Value comparison
 For the value-comparison case, I propose to use a classical model-free Q-learning algorithm with the following q-table:
+#+CAPTION: q-table for value comparison agents
 |---+--------------------------+---------------+-------------|
 |   | state                    | action: small | action: big |
 |---+--------------------------+---------------+-------------|
@@ -255,7 +300,11 @@ We will use a drift diffusion model as the choice rule for all agents. This will
 ** Model fitting & cross validation
 I propose to fit the reinforcement learning parameters and the DDM parameters simultaneously via hierarchical Bayesian parameter estimation. Hierarchical Bayesian parameter estimation is convenient in that it provides both individual and group-level parameters.
 After model fitting, I propose to use leave-one-out cross validation to determine the goodness-of-fit of each cognitive model.
+* Brief background
+Many algorithms have been shown to reliably reproduce human decisions in particular contexts. The question of how to determine which of these algorithms best represent the true underlying cognitive function of the brain remains open. One common approach is to fit the tunable parameters of reinforcement learning models to maximize the likelihood of producing the observed decision data. Value-comparison based RL models have been shown to reproduce human behavior in various contexts. These models have also been combined with drift diffusion models to fit not only participants' actions, but reaction times as well[cite:@fontanesiReinforcementLearningDiffusion2019]. Though value-comparison based models have traditionally been favored in most contexts, recent findings have shown comparison-to-threshold based models exhibit greater goodness-of-fit in classical reinforcement learning tasks irrespective of uncertainty level[cite:@zidHumansForageReward2024]. This finding, though fascinating, does not paint a complete picture of decision making under uncertainty. I believe humans rely on value-comparison in situations where value-computation is cheap, and then resort to comparison-to-threshold once the cost of value-computation reaches a certain level. Moreover, it seems logical that as this cost rises we should increasingly rely on heuristics since value-computation is intractable. One such heuristic is "consequence". Based on our previous research, I suspect participants may, in fact, act as $\bar{R}$ (i.e., mean reward of a particular state) maximizing agents when task uncertainty reaches a certain threshold[cite:@cecchiniConsequenceAssessmentBehavioral2023]. Two key differences between the Dynamic Consequential Task and the Restless Bandit Task are: the presence of perceptual uncertainty in our task, and the fact that agent actions in our task have a predictable effect on the environment.
 * Preliminary results
-I performed the task myself (version C) and here are some preliminary results.
+I performed the task myself (version C). I confirmed the Psychopy output contained all the necessary data to perform the desired analyses.
 #+ATTR_ORG: :align center
-[[./img/decisions.svg]]
+[[file:img/big_daddy.svg]]
+* Citations
+#+PRINT_BIBLIOGRAPHY:

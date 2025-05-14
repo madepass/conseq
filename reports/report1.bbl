@@ -1,0 +1,232 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nty/global//global/global}
+    \entry{cecchiniConsequenceAssessmentBehavioral2023}{report}{}
+      \name{author}{10}{}{%
+        {{hash=ddabc01a39d72396dd999e42af3e4f52}{%
+           family={Cecchini},
+           familyi={C\bibinitperiod},
+           given={Gloria},
+           giveni={G\bibinitperiod}}}%
+        {{hash=445fd0fe76c74cf8a74e8787d22c9157}{%
+           family={DePass},
+           familyi={D\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod}}}%
+        {{hash=3f8feed07567cde60dd21e9c7b0bd520}{%
+           family={Baspinar},
+           familyi={B\bibinitperiod},
+           given={Emre},
+           giveni={E\bibinitperiod}}}%
+        {{hash=46fdb6291a1613d0803f7402f66a2dc1}{%
+           family={Andujar},
+           familyi={A\bibinitperiod},
+           given={Marta},
+           giveni={M\bibinitperiod}}}%
+        {{hash=94645864455dfdc17b159c5caaa0047f}{%
+           family={Ramawat},
+           familyi={R\bibinitperiod},
+           given={Surabhi},
+           giveni={S\bibinitperiod}}}%
+        {{hash=f32c05aa6cb18e79eaffbfae82f07f3f}{%
+           family={Pani},
+           familyi={P\bibinitperiod},
+           given={Pierpaolo},
+           giveni={P\bibinitperiod}}}%
+        {{hash=095064bb79dbe934754787c68b1f5567}{%
+           family={Ferraina},
+           familyi={F\bibinitperiod},
+           given={Stefano},
+           giveni={S\bibinitperiod}}}%
+        {{hash=bb75b070b774ddeb8d2843d3509c662c}{%
+           family={Destexhe},
+           familyi={D\bibinitperiod},
+           given={Alain},
+           giveni={A\bibinitperiod}}}%
+        {{hash=413b0043da208bd3aebde6790f86e051}{%
+           family={{Moreno-Bote}},
+           familyi={M\bibinitperiod},
+           given={Ruben},
+           giveni={R\bibinitperiod}}}%
+        {{hash=e26ecd023308ee81eb8811b2872c7286}{%
+           family={Cos},
+           familyi={C\bibinitperiod},
+           given={Ignasi},
+           giveni={I\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {In Review}%
+      }
+      \strng{namehash}{9c742faa9420a6628ac24fc08fcd0fbd}
+      \strng{fullhash}{bd2237b8309b8f7e2ad9df49a98e5640}
+      \strng{bibnamehash}{9c742faa9420a6628ac24fc08fcd0fbd}
+      \strng{authorbibnamehash}{9c742faa9420a6628ac24fc08fcd0fbd}
+      \strng{authornamehash}{9c742faa9420a6628ac24fc08fcd0fbd}
+      \strng{authorfullhash}{bd2237b8309b8f7e2ad9df49a98e5640}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{Abstract Learning to make decisions depends on exploring options, experiencing their consequence, and reassessing the strategy. Several studies have analyzed various aspects of value-based decision-making, focusing on cued and immediate gratification. By contrast, how the brain gauges delayed consequence for decision-making remains poorly understood. We designed a decision-making task in which decisions altered future options. In the absence of any explicit performance feedback, participants had to test and internally assess specific criteria to make optimal decisions. This task was designed to specifically study how the assessment of consequence forms and influences decisions as learning progresses. We analyzed behavior results to characterize individual differences in reaction times, decision strategies, and learning rates. We formalized this operation mathematically by means of a multi-layered decision-making model. The first layer described the dynamics of two populations of neurons characterizing the decision-making process. The other two layers modulated the decision-making policy by dynamically adapting an oversight learning mechanism. The model was validated by fitting individual participants' behavior and it faithfully predicted non-trivial patterns of decision-making. These findings provided an explanation to how delayed consequence may be computed and incorporated into the neural dynamics of decision-making, and to how learning occurs in the absence of explicit feedback.}
+      \field{langid}{english}
+      \field{month}{8}
+      \field{shorttitle}{Consequence Assessment and Behavioral Patterns of Inhibition in Decision-Making}
+      \field{title}{Consequence Assessment and Behavioral Patterns of Inhibition in Decision-Making: Modelling Its Underlying Mechanisms}
+      \field{type}{Preprint}
+      \field{urlday}{4}
+      \field{urlmonth}{9}
+      \field{urlyear}{2023}
+      \field{year}{2023}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.21203/rs.3.rs-3241114/v1
+      \endverb
+      \verb{file}
+      \verb /home/maikito/mad/scienctific_articles/Cecchini et al_2023_Consequence assessment and behavioral patterns of inhibition in decision-making.pdf
+      \endverb
+    \endentry
+    \entry{fontanesiReinforcementLearningDiffusion2019}{article}{}
+      \name{author}{4}{}{%
+        {{hash=0bdff7f3d3f3880e007e87607c8edd26}{%
+           family={Fontanesi},
+           familyi={F\bibinitperiod},
+           given={Laura},
+           giveni={L\bibinitperiod}}}%
+        {{hash=4f6d9536f435f34dc556e72394539e61}{%
+           family={Gluth},
+           familyi={G\bibinitperiod},
+           given={Sebastian},
+           giveni={S\bibinitperiod}}}%
+        {{hash=86fd6edc4b39800495dd27f655fab5e6}{%
+           family={Spektor},
+           familyi={S\bibinitperiod},
+           given={Mikhail\bibnamedelima S.},
+           giveni={M\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=9a7300dfcb057f39ff264da35ee58159}{%
+           family={Rieskamp},
+           familyi={R\bibinitperiod},
+           given={Jörg},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{1bdeab22d5e345cb82c0d8ebfc9c194a}
+      \strng{fullhash}{817f3db889fce71214aa6a16bee81cfb}
+      \strng{bibnamehash}{1bdeab22d5e345cb82c0d8ebfc9c194a}
+      \strng{authorbibnamehash}{1bdeab22d5e345cb82c0d8ebfc9c194a}
+      \strng{authornamehash}{1bdeab22d5e345cb82c0d8ebfc9c194a}
+      \strng{authorfullhash}{817f3db889fce71214aa6a16bee81cfb}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Psychological models of value-based decision-making describe how subjective values are formed and mapped to single choices. Recently, additional efforts have been made to describe the temporal dynamics of these processes by adopting sequential sampling models from the perceptual decision-making tradition, such as the diffusion decision model (DDM). These models, when applied to value-based decision-making, allow mapping of subjective values not only to choices but also to response times. However, very few attempts have been made to adapt these models to situations in which decisions are followed by rewards, thereby producing learning effects. In this study, we propose a new combined reinforcement learning diffusion decision model (RLDDM) and test it on a learning task in which pairs of options differ with respect to both value difference and overall value. We found that participants became more accurate and faster with learning, responded faster and more accurately when options had more dissimilar values, and decided faster when confronted with more attractive (i.e., overall more valuable) pairs of options. We demonstrate that the suggested RLDDM can accommodate these effects and does so better than previously proposed models. To gain a better understanding of the model dynamics, we also compare it to standard DDMs and reinforcement learning models. Our work is a step forward towards bridging the gap between two traditions of decision-making research.}
+      \field{issn}{1069-9384, 1531-5320}
+      \field{journaltitle}{Psychonomic Bulletin \& Review}
+      \field{langid}{english}
+      \field{month}{8}
+      \field{number}{4}
+      \field{title}{A Reinforcement Learning Diffusion Decision Model for Value-Based Decisions}
+      \field{urlday}{17}
+      \field{urlmonth}{2}
+      \field{urlyear}{2025}
+      \field{volume}{26}
+      \field{year}{2019}
+      \field{urldateera}{ce}
+      \field{pages}{1099\bibrangedash 1121}
+      \range{pages}{23}
+      \verb{doi}
+      \verb 10.3758/s13423-018-1554-2
+      \endverb
+      \verb{file}
+      \verb /home/maikito/mad/scienctific_articles/Fontanesi et al. - 2019 - A reinforcement learning diffusion decision model for value-based decisions.pdf
+      \endverb
+    \endentry
+    \entry{zidHumansForageReward2024}{misc}{}
+      \name{author}{7}{}{%
+        {{hash=b779c065d43d60ef85711eb4fb772cfe}{%
+           family={Zid},
+           familyi={Z\bibinitperiod},
+           given={Meriam},
+           giveni={M\bibinitperiod}}}%
+        {{hash=d48cd23044cee429dfddcef68351940f}{%
+           family={Laurie},
+           familyi={L\bibinitperiod},
+           given={Veldon-James},
+           giveni={V\bibinithyphendelim J\bibinitperiod}}}%
+        {{hash=e257f637a9e30d990da8e88c85fdd3dd}{%
+           family={{Levine-Champagne}},
+           familyi={L\bibinitperiod},
+           given={Alix},
+           giveni={A\bibinitperiod}}}%
+        {{hash=575a4a70a77a8239a7bdb7b7e4bcca61}{%
+           family={Shourkeshti},
+           familyi={S\bibinitperiod},
+           given={Akram},
+           giveni={A\bibinitperiod}}}%
+        {{hash=ea4220be1d1fc82389667b8fe4633e6c}{%
+           family={Harrell},
+           familyi={H\bibinitperiod},
+           given={Dameon},
+           giveni={D\bibinitperiod}}}%
+        {{hash=64ccdcbf576da5d1fc513f616ea166dd}{%
+           family={Herman},
+           familyi={H\bibinitperiod},
+           given={Alexander\bibnamedelima B.},
+           giveni={A\bibinitperiod\bibinitdelim B\bibinitperiod}}}%
+        {{hash=b1b4ac2e0cb04b2e76c435a56a3e8d61}{%
+           family={Ebitz},
+           familyi={E\bibinitperiod},
+           given={R.\bibnamedelimi Becket},
+           giveni={R\bibinitperiod\bibinitdelim B\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Neuroscience}%
+      }
+      \strng{namehash}{101158b0175e72cd27fda0a6e64c1b34}
+      \strng{fullhash}{1934984c739012579605e2ac62fb8072}
+      \strng{bibnamehash}{101158b0175e72cd27fda0a6e64c1b34}
+      \strng{authorbibnamehash}{101158b0175e72cd27fda0a6e64c1b34}
+      \strng{authornamehash}{101158b0175e72cd27fda0a6e64c1b34}
+      \strng{authorfullhash}{1934984c739012579605e2ac62fb8072}
+      \field{sortinit}{Z}
+      \field{sortinithash}{96892c0b0a36bb8557c40c49813d48b3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{How do we make good decisions in uncertain environments? In psychology and neuroscience, the classic answer is that we calculate the value of each option and then compare the values to choose the most rewarding, modulo some exploratory noise. An ethologist, conversely, would argue that we commit to one option until its value drops below a threshold, at which point we start exploring other options. In order to determine which view better describes human decision-making, we developed a novel, foraging-inspired sequential decision-making model and used it to ask whether humans compare to threshold (``Forage'') or compare alternatives (``Reinforcement-Learn'' [RL]). We found that the foraging model was a better fit for participant behavior, better predicted the participants' tendency to repeat choices, and predicted the existence of held-out participants with a pattern of choice that was almost impossible under RL. Together, these results suggest that humans use foraging computations, rather than RL, even in classic reinforcement learning tasks.}
+      \field{eprinttype}{Neuroscience}
+      \field{langid}{english}
+      \field{month}{7}
+      \field{title}{Humans Forage for Reward in Reinforcement Learning Tasks}
+      \field{urlday}{17}
+      \field{urlmonth}{1}
+      \field{urlyear}{2025}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{doi}
+      \verb 10.1101/2024.07.08.602539
+      \endverb
+      \verb{file}
+      \verb /home/maikito/mad/scienctific_articles/Zid et al. - 2024 - Humans forage for reward in reinforcement learning tasks.pdf
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+
