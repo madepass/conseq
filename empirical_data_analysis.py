@@ -128,6 +128,24 @@ data = import_psychopy(file_path)
 
 # %% Exploratory analysis
 
+# check mouse trajectory sampling
+aux = []
+for i in data.mouse_time:
+    aux.append(np.diff(i))
+aux = [j for i in aux for j in i]
+fig = plt.figure(figsize=(5, 5))
+ax = plt.gca()
+ax.hist(aux)
+ax.text(
+    0,
+    5200,
+    f"mean inter-sample duration: {round(np.mean(aux), 4)}\ncorresponding sampling rate: {round(1/np.mean(aux), 2)}",
+)
+save_name = fig_dir + "mouse_sample_duration.svg"
+fig.savefig(save_name)
+del aux
+# conclusion: frame rate is not super consistent, but on average it's fairly accurate
+
 # visualize decisions
 fig = plt.figure(figsize=(10, 3))
 plt.scatter(np.arange(len(data.trial)), data.chose_big, s=2, color="k")

@@ -298,6 +298,7 @@ The consequence analog of value comparison to threshold.
 ** Drift diffusion model choice rule
 We will use a drift diffusion model as the choice rule for all agents. This will enable us to fit participants' reaction times (RT). The input to the DDM is different for each model, but the number of tunable parameters is the same, thus the addition of the DDM does not affect the complexity of the models relative to one another. To begin, I propose to use a constant scaler for the drift rate, $v$, constant diffusion boundaries, and a non-biased starting point, $z$. This reduces the complexity of the model. We may choose to fit these parameters if the simple version of the model results in a poor fit.
 ** Model fitting & cross validation
+I propose to first fit the non-DDM parameters via maximum likelihood. Then, I propose to fix these parameters and fit the DDM parameters to best reproduce empirical reaction times.
 I propose to fit the reinforcement learning parameters and the DDM parameters simultaneously via hierarchical Bayesian parameter estimation. Hierarchical Bayesian parameter estimation is convenient in that it provides both individual and group-level parameters.
 After model fitting, I propose to use leave-one-out cross validation to determine the goodness-of-fit of each cognitive model.
 * Brief background
