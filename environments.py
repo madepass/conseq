@@ -248,8 +248,10 @@ class Horizon1:
                 self.state[1],
                 action,
             ]
-            self._update()
+            # self._update()
+            # comment above and add line below
             new_state = self.state_transition(action)
+            self.trial_number += 1
             return new_state, reward, self.done, env_params
         if self.state[0] == 0:  # set m and d for the episode
             self.m = np.round(np.random.choice(self.ms), decimals=2)

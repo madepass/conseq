@@ -1,4 +1,10 @@
 * currently working on
+- see info.csv, something wrong with stimuli
+  - 3rd row already wrong
+    - m shows 0.49, but stimuli mean is 0.51
+  - 4th row m is correct! see latest calc in repl
+- make sure environment and real task match as closely as possible
+  - check m
 * todo
 ** task
 - add survey question about input method (eg mouse, trackpad, other)
@@ -6,6 +12,7 @@
 - make sure online version of task exports full mouse trajectories
 - deploy other 3 task versions
 ** analysis
+- environment
 - Q-learning agent
 - Q-foraging agent
 - C-learning agent
