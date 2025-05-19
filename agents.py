@@ -8,8 +8,24 @@ from typing import List, Tuple, Union, Dict
 import gym
 from gym import spaces
 from environments import Horizon1
+import math
 
 # %% Functions
+def env2agent_state(state):
+    stimuli = state["stimuli"]
+    diff = round(max(stimuli) - min(stimuli), 3)
+    if state["state_id"] == 0:  # first trial in episode
+        if np.isclose(diff, 0.05):
+            agent_state = 0
+        elif np.isclose(diff, 0.2):
+            agent_state = 1
+        elif np.isclose(diff, 0.35):
+            agent_state = 2
+        else:
+            raise ("Unknown difficulty value!")
+    else:  # second trial
+        agent_state = 3
+    return agent_state
 
 
 class Horizon1VC(gym.Env):
@@ -100,8 +116,8 @@ class Horizon1VC(gym.Env):
             return self._get_obs(), reward, self.done, False, info
 
         # Trial 2
-        self.state = self._state_transition(action)
         self._update_counters()
+        self.state = self._state_transition(action)
         if self.verbose:
             print(
                 f"g={self.g:.2f}, ep={self.episode_number}, trial={self.trial_number}"
@@ -182,22 +198,69 @@ class Horizon1VC(gym.Env):
 
 
 class QLearningAgent:
-    def __init__(self, actions, learning_rate=0.15, discount_factor=0.99, epsilon=0.1):
+    def __init__(
+        self,
+        actions,
+        learning_rate=0.10,
+        discount_factor=1,
+        temperature=1.0,
+        decay_rate=0.99,
+        min_temperature=0.1,
+        q_table_options="dict",
+    ):
         self.actions = actions
-        self.q_table = defaultdict(
-            lambda: np.zeros(len(actions))
-        )  # Q[state_id][action]
         self.alpha = learning_rate
         self.gamma = discount_factor
-        self.epsilon = epsilon
+        self.temperature = temperature  # τ
+        self.decay_rate = decay_rate  # temperature decay
+        self.min_temperature = min_temperature
+        self.q_table_options = q_table_options
+        self.q_table = self._initialize_q_table()
+
+    def _initialize_q_table(self):
+        if self.q_table_options == "dict":
+            q_table = {
+                0: np.zeros(len(self.actions)),  # trial 1 - low delta
+                1: np.zeros(len(self.actions)),  # trial 1 - medium delta
+                2: np.zeros(len(self.actions)),  # trial 1 - high delta
+                3: np.zeros(len(self.actions)),  # trial 2
+            }
+        elif q_table == "defaultdict":
+            self.q_table = defaultdict(
+                lambda: np.zeros(len(self.actions))
+            )  # Q[state_id][action]
+        else:
+            raise ("Unsupported q_table type")
+        return q_table
+
+    def get_info(self) -> Dict:
+        return {
+            "alpha": self.alpha,
+            "temperature": self.temperature,
+            "q_table": self.q_table,
+        }
+
+    def _softmax(self, q_values):
+        tau = self.temperature
+        if tau == 0:
+            return np.eye(len(q_values))[np.argmax(q_values)]
+        preferences = q_values / tau
+        max_pref = np.max(preferences)  # For numerical stability
+        exp_preferences = np.exp(preferences - max_pref)
+        return exp_preferences / np.sum(exp_preferences)
 
     def choose_action(self, state_id):
-        if np.random.rand() < self.epsilon:
-            return np.random.choice([0, 1])
-        return np.argmax(self.q_table[state_id])
+        q_values = self.q_table[state_id]
+        probs = self._softmax(q_values)
+        return np.random.choice(len(q_values), p=probs)
 
     def update(self, state_id, action, reward, next_state_id):
-        best_next = np.max(self.q_table[next_state_id])
+        if state_id in [1, 2]:  # terminal state
+            best_next = 0
+            if self.temperature > self.min_temperature:
+                self.temperature *= self.decay_rate
+        else:
+            best_next = np.max(self.q_table[next_state_id])
         td_target = reward + self.gamma * best_next
         td_error = td_target - self.q_table[state_id][action]
         self.q_table[state_id][action] += self.alpha * td_error
@@ -207,43 +270,37 @@ class QLearningAgent:
 
 
 # %% Training loop
-env = Horizon1VC()
-agent = QLearningAgent(
-    [0, 1],
-)
+env = Horizon1VC(gs=[0], episodes_per_g=500)
+agent = QLearningAgent([0, 1], learning_rate=0.1)
 
 num_episodes = sum(env._generate_episode_counts())  # Use total episode count
 
 state = env.reset()
-info_list = []
-total_reward = 0
+env_info_list = []
+agent_info_list = []
 
 while not env.done:
     state_id = state["state_id"]
+    agent_state_id = env2agent_state(state)
     action = agent.choose_action(state_id)
     next_state, reward, done, _, info = env.step(action)
-    info_list.append(info)
+    env_info_list.append(info)
+    agent_info_list.append(agent.get_info())
 
     next_state_id = next_state["state_id"]
     agent.update(state_id, action, reward, next_state_id)
 
-    total_reward += reward
-
-    # if info["trial"] == 2:  # End of episode
-    #     episode_rewards.append(total_reward)
-    #     total_reward = 0
-
     state = next_state
-info_df = pd.DataFrame(info_list)
-info_df.to_csv("./output/info.csv")
-# print("Training complete!")
-# print(f"Average reward: {np.mean(episode_rewards):.3f}")
+
+env_info_df = pd.DataFrame(env_info_list)
+env_info_df.to_csv("./output/env_info.csv")
+env_info_df = pd.DataFrame(agent_info_list)
+env_info_df.to_csv("./output/agent_info.csv")
 
 # %% Main
 
 agent = QLearningAgent([0, 1])  # 0: choose small, 1: choose big
-env = Horizon1VC()
-obs = env.reset()
+env = Horizon1()
 terminated = False
 info_list = []
 while not terminated:

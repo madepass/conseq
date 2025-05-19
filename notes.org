@@ -13,12 +13,23 @@
 - deploy other 3 task versions
 ** analysis
 - environment
+  - why only 3 states? need 4
 - Q-learning agent
+  - optimistic initial values make sense in this case
+  - how do q values behave after each g?
+  - gamma = 1?
+  - softmax choice rule
+    - w/ decreasing temperature term over time
+      - how should this interact with different G's?
 - Q-foraging agent
 - C-learning agent
 - C-foraging agent
 - DDM decision rule
 - bayesian parameter optimization
+* misc thoughts
+- formulate agent for only 1 state?
+  - can logically deduce to always choose big in the second trial
+
 * riccardo feedback
 - "may have changed" \to "changed"
 - maybe make top schematic clearer, indicate repitions more clearly
