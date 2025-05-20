@@ -9,12 +9,30 @@ import gym
 from gym import spaces
 from environments import Horizon1
 import math
+from ast import literal_eval
 
 # %% Functions
-def env2agent_state(state):
-    stimuli = state["stimuli"]
+def translate_state(env_state):
+    """
+    Input: state from environment
+    Output: agent interpretation of environmental state
+
+    env states
+    ==========
+    0: trial 1
+    1: trial 2 - low reward
+    2: trial 2 - high reward
+
+    agent states
+    ============
+    0: trial 1 - low diff (ie difference between stimuli)
+    1: trial 1 - medium diff
+    2: trial 1 - high diff
+    3: trial 2
+    """
+    stimuli = env_state["stimuli"]
     diff = round(max(stimuli) - min(stimuli), 3)
-    if state["state_id"] == 0:  # first trial in episode
+    if env_state["state_id"] == 0:  # first trial in episode
         if np.isclose(diff, 0.05):
             agent_state = 0
         elif np.isclose(diff, 0.2):
@@ -207,15 +225,18 @@ class QLearningAgent:
         decay_rate=0.99,
         min_temperature=0.1,
         q_table_options="dict",
+        alpha_decay=0.99,
     ):
         self.actions = actions
         self.alpha = learning_rate
+        self.alpha_decay_rate = alpha_decay
         self.gamma = discount_factor
         self.temperature = temperature  # τ
         self.decay_rate = decay_rate  # temperature decay
         self.min_temperature = min_temperature
         self.q_table_options = q_table_options
         self.q_table = self._initialize_q_table()
+        self.state = None
 
     def _initialize_q_table(self):
         if self.q_table_options == "dict":
@@ -233,11 +254,44 @@ class QLearningAgent:
             raise ("Unsupported q_table type")
         return q_table
 
+    def _translate_state(self, env_state):
+        """
+        Input: state from environment
+        Output: agent interpretation of environmental state
+
+        env states
+        ==========
+        0: trial 1
+        1: trial 2 - low reward
+        2: trial 2 - high reward
+
+        agent states
+        ============
+        0: trial 1 - low diff (ie difference between stimuli)
+        1: trial 1 - medium diff
+        2: trial 1 - high diff
+        3: trial 2
+        """
+        stimuli = env_state["stimuli"]
+        diff = round(max(stimuli) - min(stimuli), 3)
+        if env_state["state_id"] == 0:  # first trial in episode
+            if np.isclose(diff, 0.05):
+                agent_state = 0
+            elif np.isclose(diff, 0.2):
+                agent_state = 1
+            elif np.isclose(diff, 0.35):
+                agent_state = 2
+            else:
+                raise ("Unknown difficulty value!")
+        else:  # second trial
+            agent_state = 3
+        return agent_state
+
     def get_info(self) -> Dict:
         return {
             "alpha": self.alpha,
             "temperature": self.temperature,
-            "q_table": self.q_table,
+            "q_table": [list(i) for i in agent.q_table.values()],
         }
 
     def _softmax(self, q_values):
@@ -249,16 +303,21 @@ class QLearningAgent:
         exp_preferences = np.exp(preferences - max_pref)
         return exp_preferences / np.sum(exp_preferences)
 
-    def choose_action(self, state_id):
-        q_values = self.q_table[state_id]
-        probs = self._softmax(q_values)
-        return np.random.choice(len(q_values), p=probs)
+    def choose_action(self, state):
+        state_id = self._translate_state(state)
+        if state_id in [0, 1, 2]: # trial 1
+            q_values = self.q_table[state_id]
+            probs = self._softmax(q_values)
+            return np.random.choice(len(q_values), p=probs)
+        else:  # trial 2 - terminal state
+            return 1  # big, only logical choice
 
     def update(self, state_id, action, reward, next_state_id):
-        if state_id in [1, 2]:  # terminal state
+        if state_id == 3:  # terminal state
             best_next = 0
             if self.temperature > self.min_temperature:
                 self.temperature *= self.decay_rate
+            self.alpha *= self.alpha_decay_rate
         else:
             best_next = np.max(self.q_table[next_state_id])
         td_target = reward + self.gamma * best_next
@@ -270,42 +329,36 @@ class QLearningAgent:
 
 
 # %% Training loop
-env = Horizon1VC(gs=[0], episodes_per_g=500)
-agent = QLearningAgent([0, 1], learning_rate=0.1)
+# TODO: training loop function, can import to other scripts
+env = Horizon1VC(gs=[0.3], episodes_per_g=100)
+agent = QLearningAgent([0, 1], learning_rate=0.1, temperature=3)
 
 num_episodes = sum(env._generate_episode_counts())  # Use total episode count
 
-state = env.reset()
 env_info_list = []
 agent_info_list = []
-
+env_state = env.reset()
 while not env.done:
-    state_id = state["state_id"]
-    agent_state_id = env2agent_state(state)
-    action = agent.choose_action(state_id)
-    next_state, reward, done, _, info = env.step(action)
+    action = agent.choose_action(env_state)
+    next_state_env, reward, done, _, info = env.step(action)
     env_info_list.append(info)
     agent_info_list.append(agent.get_info())
 
-    next_state_id = next_state["state_id"]
+    state_id = agent._translate_state(env_state)
+    next_state_id = agent._translate_state(next_state_env)
     agent.update(state_id, action, reward, next_state_id)
 
-    state = next_state
+    env_state = next_state_env
 
 env_info_df = pd.DataFrame(env_info_list)
 env_info_df.to_csv("./output/env_info.csv")
-env_info_df = pd.DataFrame(agent_info_list)
-env_info_df.to_csv("./output/agent_info.csv")
+agent_info_df = pd.DataFrame(agent_info_list)
+agent_info_df.to_csv("./output/agent_info.csv")
 
-# %% Main
-
-agent = QLearningAgent([0, 1])  # 0: choose small, 1: choose big
-env = Horizon1()
-terminated = False
-info_list = []
-while not terminated:
-    obs, reward, terminated, truncated, info = env.step(0)
-    info_list.append(info)
-
-info_df = pd.DataFrame(data=info_list)
-info_df.to_csv("./output/info.csv")
+# %% Visualize results
+# load data
+env_info_df = pd.read_csv("./output/env_info.csv")
+agent_info_df = pd.read_csv("./output/agent_info.csv")
+# visualize q-values
+q_values = agent_info_df["q_table"].apply(literal_eval)
+fig = plt.figure(figsize=(5, 10)))

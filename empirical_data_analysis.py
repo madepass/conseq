@@ -6,14 +6,6 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-# %% Import data
-data_dir = "/media/maikito/mad_mini/consequential_task/psychopy/h1_v2/data/saved/"
-file_name = "mad_test2_consequential_2025-05-08_15h37.47.862.csv"
-data_mad = pd.read_csv(f"{data_dir}{file_name}")
-
-fig_dir = "/media/maikito/mad_mini/consequential_task/figs/"
-
-file_path = f"{data_dir}{file_name}"
 # %% Functions
 
 
@@ -111,6 +103,79 @@ def import_psychopy(file_path: str) -> pd.DataFrame:
     return df2
 
 
+def import_pavlovia(file_path: str) -> pd.DataFrame:
+    """
+    Import .csv export from online PsychoPy experiment hosted on Pavlovia.
+    Returns pandas dataframe
+    """
+    breakpoint()
+    remove_idx = []  # rows to remove
+    df = pd.read_csv(file_path)
+    # instructions duration
+    instructions_start = df["instructions.started"][0]
+    instructions_end = df["mouse_instructions.time"][0]
+    instructions_end = instructions_end.replace("[", "]")
+    instructions_end = float(instructions_end.split("]")[1])
+    instructions_duration = instructions_end - instructions_start
+    instructions_idx = list(df.loc[pd.isna(df["g_block"]), :].index)
+    remove_idx += instructions_idx
+    # drop environment initialization rows
+    aux = df["initialize_g_block_variables.started"].isna()
+    new_env_idx = list(np.where(aux == False)[0] - 1)
+    remove_idx += new_env_idx[1:]
+    aux = list(np.where(df["thisN"] == 3)[0])
+    experiment_end_ind = aux
+    remove_idx += experiment_end_ind
+    df = df.drop(df.index[remove_idx], axis=0)
+    df.reset_index(inplace=True)
+    # what columns do we want to keep?
+    trial_number = list(np.arange(df.shape[0]) + 1)
+    df["trial"] = trial_number
+    keep_columns = [
+        "g_block",
+        "episodes.thisN",
+        "trial",
+        "mouse_2.x",
+        "mouse_2.y",
+        "mouse_2.leftButton",
+        "mouse_2.time",
+        "mouse_2.clicked_name",
+        "d",
+        "m",
+        "left_stimulus_height",
+        "right_stimulus_height",
+        "left_chosen",
+        "chose_bigger",
+        "left_stimulus_1.started",  # left stimulus appears
+        "left_stimulus_1.stopped",  # left stimulus disappears
+        "right_stimulus_1.started",  # right stimulus appears
+        "right_stimulus_1.stopped",  # right stimulus disappears
+        "left_stimuli_outline_2.started",  # GO signal
+        "trial.stopped",
+    ]
+    df2 = df[keep_columns]
+    df2 = convert_stringified_lists(df2)
+    # better column names
+    df2.rename(
+        columns={
+            "g_block": "g",
+            "episodes.thisN": "episode",
+            "mouse_2.x": "mouse_x",
+            "mouse_2.y": "mouse_y",
+            "mouse_2.leftButton": "mouse_click",
+            "mouse_2.time": "mouse_time",
+            "left_chosen": "chose_left",
+            "chose_bigger": "chose_big",
+            "left_stimuli_outline_2.started": "go",
+            "trial.stopped": "mouse_click_time",
+        },
+        inplace=True,
+    )
+    df2 = df2.astype({"episode": int})
+    df2.episode = df2.episode + 1
+    return df2
+
+
 def stim_height_categories(series):
     new_col = []
     for i in series:
@@ -123,7 +188,14 @@ def stim_height_categories(series):
     return new_col
 
 
-# %%
+# %% Import data (local)
+data_dir = "/media/maikito/mad_mini/consequential_task/psychopy/h1_v2/data/saved/"
+file_name = "mad_test2_consequential_2025-05-08_15h37.47.862.csv"
+data_mad = pd.read_csv(f"{data_dir}{file_name}")
+
+fig_dir = "/media/maikito/mad_mini/consequential_task/figs/"
+
+file_path = f"{data_dir}{file_name}"
 data = import_psychopy(file_path)
 
 # %% Exploratory analysis
@@ -299,3 +371,14 @@ fig_row2right.subplots_adjust(left=0, right=0.9, bottom=0.2, top=1)
 
 save_name = fig_dir + "big_daddy.svg"
 fig.savefig(save_name)
+
+# %% Import data (pavlovia)
+fig_dir = "/media/maikito/mad_mini/consequential_task/figs/"
+pavlovia_dir = "/media/maikito/mad_mini/consequential_task/psychopy/gitlab_repos/consequential_task_A/data/"
+file_name = "gloria2_consequential_2025-05-20_15h58.18.512.csv"
+file_path = f"{pavlovia_dir}{file_name}"
+data_gloria = pd.read_csv(file_path)
+
+fig_dir = "/media/maikito/mad_mini/consequential_task/figs/"
+
+data = import_pavlovia(file_path)

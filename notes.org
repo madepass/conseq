@@ -1,10 +1,21 @@
 * currently working on
-- see info.csv, something wrong with stimuli
-  - 3rd row already wrong
-    - m shows 0.49, but stimuli mean is 0.51
-  - 4th row m is correct! see latest calc in repl
-- make sure environment and real task match as closely as possible
-  - check m
+- [ ] make pavlovia data import function
+- [ ] visualize gloria data
+- [ ] make function to visualize "correct" answers
+
+- [ ] make functions to determine "learning time"
+- [ ] make plot of q-values over time
+
+- [ ] implement empirical data fitting procedure
+  - [ ] fit current QLearningAgent to gloria's data
+
+- [ ] make sure environment and real task match as closely as possible
+  - [ ] check m
+
+- [ ] ignasi variant - confidence input after each episode
+
+- [ ] statistical power analyses
+
 * todo
 ** task
 - add survey question about input method (eg mouse, trackpad, other)
