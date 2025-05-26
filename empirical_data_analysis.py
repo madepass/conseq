@@ -117,10 +117,11 @@ def import_pavlovia(file_path: str) -> pd.DataFrame:
     instructions_end = instructions_end.replace("[", "]")
     instructions_end = float(instructions_end.split("]")[1])
     instructions_duration = instructions_end - instructions_start
-    instructions_idx = list(df.loc[pd.isna(df["g_block"]), :].index)
-    remove_idx += instructions_idx
-    # drop environment initialization rows
-    aux = df["initialize_g_block_variables.started"].isna()
+    # find environment initialization rows
+    aux = df["initialize_g_block_variables.started"]
+    aux = np.where(aux.notna())[0]
+    aux = aux.tolist()
+
     new_env_idx = list(np.where(aux == False)[0] - 1)
     remove_idx += new_env_idx[1:]
     aux = list(np.where(df["thisN"] == 3)[0])
@@ -300,6 +301,7 @@ save_name = fig_dir + "rt_vs_r.svg"
 fig.savefig(save_name)
 
 # %% Big daddy figure
+fs = 13  # fontsize
 fig = plt.figure(figsize=(10, 5))
 # create subfigures for first and second row
 (row1fig, row2fig) = fig.subfigures(2, 1, height_ratios=[1, 1])
@@ -317,12 +319,12 @@ ax.set_xlim(left=0, right=240)
 xticks = [60, 120, 180, 240]
 ax.set_xticks(xticks, list(map(str, xticks)))
 yticks = [0, 1]
-ax.set_yticks(yticks, ["small", "big"])
-ax.set_ylabel("choice")
-ax.set_xlabel("trial")
+ax.set_yticks(yticks, ["small", "big"], fontsize=fs)
+ax.set_ylabel("choice", fontsize=fs)
+ax.set_xlabel("trial", fontsize=fs)
 g_x = list(np.arange(30, 240, 60))
 for i, g in enumerate(data.g.unique()):
-    plt.text(g_x[i], 0.5, f"g = {g}", horizontalalignment="center")
+    plt.text(g_x[i], 0.5, f"g = {g}", horizontalalignment="center", fontsize=16)
 ax.spines[["right", "top"]].set_visible(False)
 letter_annotation(ax, -0.1, 1, "A")
 
@@ -334,15 +336,15 @@ axs = fig_row2left.subplots(2, 1)
 
 ax = axs[0]
 ax.hist(data.rt, color="k", fill=False)
-ax.set_ylabel("count (trials)")
-ax.set_xlabel("RT (s)")
+ax.set_ylabel("count (trials)", fontsize=fs)
+ax.set_xlabel("RT (s)", fontsize=10)
 ax.spines[["right", "top"]].set_visible(False)
 letter_annotation(ax, -0.5, 1, "B")
 
 ax = axs[1]
 ax.hist(mean_stim_height, color="k", fill=False)
-ax.set_ylabel("count (trials)")
-ax.set_xlabel(r"$\bar{R}$")
+ax.set_ylabel("count (trials)", fontsize=fs)
+ax.set_xlabel(r"$\bar{R}$", fontsize=fs)
 ax.spines[["right", "top"]].set_visible(False)
 
 fig_row2left.subplots_adjust(left=0.30, right=0.8, bottom=0.2, top=1, hspace=0.5)
@@ -351,19 +353,21 @@ axs = fig_row2right.subplots(1, 3, sharey=True)
 
 ax = axs[0]
 bp = sns.barplot(data=data, x="d", y="rt", color="k", fill=False, ax=ax)
-ax.set_ylabel("RT (s)")
+ax.set_xlabel("d", fontsize=fs)
+ax.set_ylabel("RT (s)", fontsize=fs)
 ax.spines[["right", "top"]].set_visible(False)
 letter_annotation(ax, -0.4, 1, "C")
 
 
 ax = axs[1]
 bp = sns.barplot(data=data, x="g", y="rt", color="k", fill=False, ax=ax)
+ax.set_xlabel("g", fontsize=fs)
 ax.set(ylabel="")
 ax.spines[["right", "top"]].set_visible(False)
 
 ax = axs[2]
 bp = sns.barplot(data=data, x="stim_mean_cat", y="rt", color="k", fill=False, ax=ax)
-ax.set_xlabel(r"$\bar{R}$")
+ax.set_xlabel(r"$\bar{R}$", fontsize=fs)
 ax.set(ylabel="")
 ax.spines[["right", "top"]].set_visible(False)
 
@@ -382,3 +386,7 @@ data_gloria = pd.read_csv(file_path)
 fig_dir = "/media/maikito/mad_mini/consequential_task/figs/"
 
 data = import_pavlovia(file_path)
+
+# %% Main
+if __name__ == "__main__":
+    print("hello world")

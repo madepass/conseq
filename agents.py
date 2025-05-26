@@ -305,7 +305,7 @@ class QLearningAgent:
 
     def choose_action(self, state):
         state_id = self._translate_state(state)
-        if state_id in [0, 1, 2]: # trial 1
+        if state_id in [0, 1, 2]:  # trial 1
             q_values = self.q_table[state_id]
             probs = self._softmax(q_values)
             return np.random.choice(len(q_values), p=probs)
@@ -328,9 +328,35 @@ class QLearningAgent:
         return np.argmax(self.q_table[state_id])
 
 
+def correct_choice_column(env_df):
+    # returns list of 0/1 (i.e., incorrect/correct)
+    correct_choice = []
+    for index, row in env_df.iterrows():
+        if row["trial"] == 2:
+            correct = row["action"]  # 1/big correct for terminal state
+        elif row["d"] > (2 * row["g"]):
+            correct = row["action"]  # correct always big
+        elif row["d"] == (2 * row["g"]):
+            correct = 1  # both strats equal
+        elif row["d"] < (2 * row["g"]) and row["trial"] == 1:
+            correct = 1 if row["action"] == 0 else 0
+        else:
+            print("theres a case i havent thought of, or an error")
+        correct_choice.append(correct)
+    return correct_choice
+
+
+def import_agent_info_df(file_path):
+    agent_info_df = pd.read_csv(file_path)
+    # visualize q-values
+    q_values = agent_info_df["q_table"].apply(literal_eval)
+    agent_info_df["q_table"] = q_values
+    return agent_info_df
+
+
 # %% Training loop
 # TODO: training loop function, can import to other scripts
-env = Horizon1VC(gs=[0.3], episodes_per_g=100)
+env = Horizon1VC(gs=[0.3], episodes_per_g=500)
 agent = QLearningAgent([0, 1], learning_rate=0.1, temperature=3)
 
 num_episodes = sum(env._generate_episode_counts())  # Use total episode count
@@ -353,12 +379,39 @@ while not env.done:
 env_info_df = pd.DataFrame(env_info_list)
 env_info_df.to_csv("./output/env_info.csv")
 agent_info_df = pd.DataFrame(agent_info_list)
+correct_column = correct_choice_column(env_info_df)
+agent_info_df["correct"] = correct_column
 agent_info_df.to_csv("./output/agent_info.csv")
 
 # %% Visualize results
 # load data
 env_info_df = pd.read_csv("./output/env_info.csv")
-agent_info_df = pd.read_csv("./output/agent_info.csv")
-# visualize q-values
-q_values = agent_info_df["q_table"].apply(literal_eval)
-fig = plt.figure(figsize=(5, 10)))
+agent_info_df = import_agent_info_df("./output/agent_info.csv")
+
+# visualize q_values
+agent_info_df["q_table"]
+q1, q2, q3, q4, q5, q6 = (
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+)
+for index, row in agent_info_df.iterrows():
+    q1.append(row["q_table"][0][0])
+    q2.append(row["q_table"][0][1])
+    q3.append(row["q_table"][1][0])
+    q4.append(row["q_table"][1][1])
+    q5.append(row["q_table"][2][0])
+    q6.append(row["q_table"][2][1])
+qs = [q1, q2, q3, q4, q5, q6]
+
+# %%
+fig = plt.figure(figsize=(10, 5))
+for i, _ in enumerate(qs):
+    plt.plot(_, label=f"q{i+1}")
+ax = plt.gca()
+ax.spines[["right", "top"]].set_visible(False)
+plt.legend()
+plt.show()
