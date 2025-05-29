@@ -1,10 +1,18 @@
 * currently working on
+- [ ] add line to "correct %" plot - only include trials where larger q value chosen
+  - something wrong with it... look for bug
+- [ ] foraging agent
+- [ ] consequence agent
+  - [ ] immediate reward & deltaR
+  - [ ] only deltaR
+- [ ] "asymptote" plots, 100 episodes for each combination of g & agent type
+
 - [ ] make pavlovia data import function
 - [ ] visualize gloria data
-- [ ] make function to visualize "correct" answers
+- [X] make function to visualize "correct" answers
 
 - [ ] make functions to determine "learning time"
-- [ ] make plot of q-values over time
+- [X] make plot of q-values over time
 
 - [ ] implement empirical data fitting procedure
   - [ ] fit current QLearningAgent to gloria's data
